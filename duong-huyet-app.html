@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Theo dõi đường huyết</title>
+<style>
+  :root{
+    --bg:#f4f6f8; --panel:#ffffff; --panel2:#f0f3f6; --line:#dfe5ea;
+    --txt:#1a2730; --muted:#6b7d89; --accent:#0a8a68;
+    --ok:#0a7256; --okbg:#cdf0e2; --warn:#a86807; --warnbg:#fbe9c2;
+    --high:#c12f2f; --highbg:#f8d2d2;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--bg);color:var(--txt);line-height:1.5;
+    min-height:100vh;padding:20px 16px 60px;
+    transition:background .5s ease;
+  }
+  body.state-ok{background:#bfeeda;--accent:#0a7256}
+  body.state-warn{background:#fbe0a8;--accent:#a86807}
+  body.state-high{background:#f9c6c6;--accent:#c12f2f}
+  .wrap{max-width:760px;margin:0 auto}
+  header{margin-bottom:24px}
+  h1{font-size:22px;font-weight:600;letter-spacing:-.3px;display:flex;align-items:center;gap:10px}
+  h1 .dot{width:10px;height:10px;border-radius:50%;background:var(--accent)}
+  .sub{color:var(--muted);font-size:13px;margin-top:4px}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:20px;box-shadow:0 1px 3px rgba(20,40,55,.05)}
+  .card h2{font-size:14px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:16px}
+
+  label{display:block;font-size:13px;color:var(--muted);margin-bottom:7px}
+  .row{display:flex;gap:12px;flex-wrap:wrap}
+  .row > div{flex:1;min-width:140px}
+
+  input[type=number],input[type=date],input[type=time],select,textarea{
+    width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:10px;
+    color:var(--txt);padding:12px 14px;font-size:15px;font-family:inherit;outline:none;
+  }
+  input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+  textarea{resize:vertical;min-height:46px}
+
+  /* Ô nhập chính: to, nổi bật */
+  .big-input{font-size:34px !important;font-weight:700;padding:18px 18px !important;text-align:center;letter-spacing:-.5px}
+  .big-input::placeholder{font-size:22px;font-weight:400;letter-spacing:0}
+  .big-note{font-size:18px !important;min-height:64px;padding:14px 16px !important}
+  .big-note::placeholder{font-size:15px}
+  .field-lg label{font-size:14px;margin-bottom:9px}
+
+  .seg{display:flex;gap:8px;flex-wrap:wrap}
+  .seg button{
+    flex:1;min-width:100px;background:var(--panel2);border:1px solid var(--line);
+    color:var(--muted);padding:11px 8px;border-radius:10px;font-size:13px;cursor:pointer;
+    font-family:inherit;transition:background .4s ease,color .2s,border-color .4s;
+  }
+  .seg button.active{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600}
+
+  .verdict{border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-top:4px}
+  .verdict .ic{font-size:22px;line-height:1}
+  .verdict .txtwrap{flex:1;font-size:16px;font-weight:600}
+  .verdict .txtwrap small{display:block;font-weight:400;color:var(--muted);font-size:12px;margin-top:2px}
+  .verdict .mmolval{font-size:28px;font-weight:700;letter-spacing:-.5px;line-height:1}
+  .verdict .mmolval span{font-size:13px;font-weight:400;color:var(--muted);margin-left:3px}
+  .v-ok{background:var(--okbg);color:var(--ok)}
+  .v-warn{background:var(--warnbg);color:var(--warn)}
+  .v-high{background:var(--highbg);color:var(--high)}
+
+  .btn{background:var(--accent);color:#fff;border:none;border-radius:11px;padding:14px;
+    font-size:15px;font-weight:600;cursor:pointer;width:100%;font-family:inherit;transition:background .5s ease,filter .15s}
+  .btn:hover{filter:brightness(1.06)}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+  .btn-ghost{background:transparent;border:1px solid var(--line);color:var(--muted)}
+
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px}
+  .stat{background:var(--panel2);border-radius:11px;padding:14px}
+  .stat .n{font-size:24px;font-weight:700}
+  .stat .l{font-size:12px;color:var(--muted);margin-top:2px}
+
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;color:var(--muted);font-weight:500;padding:8px 6px;border-bottom:1px solid var(--line);font-size:12px}
+  td{padding:10px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  .pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600}
+  .p-ok{background:var(--okbg);color:var(--ok)}
+  .p-warn{background:var(--warnbg);color:var(--warn)}
+  .p-high{background:var(--highbg);color:var(--high)}
+  .mval{font-weight:700;font-size:15px}
+  .mval.hi{color:var(--high)}
+  .del{color:var(--muted);cursor:pointer;background:none;border:none;font-size:15px;padding:2px 6px}
+  .del:hover{color:var(--high)}
+  .edit{color:var(--muted);cursor:pointer;background:none;border:none;font-size:14px;padding:2px 6px}
+  .edit:hover{color:var(--accent)}
+  .editbar{display:none;align-items:center;gap:10px;background:var(--panel2);border:1px solid var(--accent);
+    border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:13px;color:var(--txt)}
+  .editbar.on{display:flex}
+  .editbar .x{margin-left:auto;background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;text-decoration:underline}
+  .empty{color:var(--muted);text-align:center;padding:30px 0;font-size:14px}
+  .toolbar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+  .toolbar .btn{width:auto;padding:9px 16px;font-size:13px}
+  .note-cell{color:var(--muted);max-width:160px}
+  @media(max-width:560px){
+    .hide-sm{display:none}
+    .verdict .mmolval{font-size:24px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1><span class="dot"></span>Theo dõi đường huyết</h1>
+    <div class="sub">Nhập mg/dL — tự quy ra mmol/L và đánh giá theo thời điểm đo</div>
+  </header>
+
+  <div id="dbWarn" style="display:none;background:#fbe9c2;border:1px solid #a86807;color:#6a4204;border-radius:12px;padding:14px 16px;margin-bottom:20px;font-size:13px;line-height:1.6">
+    <b>Chưa kết nối cơ sở dữ liệu.</b> Mở file này và điền <code>SUPABASE_URL</code> và <code>SUPABASE_KEY</code> ở đầu phần script. Hiện dữ liệu chỉ lưu tạm trong phiên.
+  </div>
+  <div id="dbErr" style="display:none;background:#f8d2d2;border:1px solid #c12f2f;color:#7a1d1d;border-radius:12px;padding:14px 16px;margin-bottom:20px;font-size:13px;line-height:1.6"></div>
+
+  <!-- NHẬP -->
+  <div class="card">
+    <h2 id="formTitle">Nhập kết quả đo</h2>
+
+    <div class="editbar" id="editbar">
+      <span>Đang sửa bản ghi cũ</span>
+      <button class="x" id="cancelEdit">Huỷ</button>
+    </div>
+
+    <label>Thời điểm đo</label>
+    <div class="seg" id="seg" style="margin-bottom:6px">
+      <button data-k="doi" class="active">Lúc đói</button>
+      <button data-k="h1">Sau ăn 1h</button>
+      <button data-k="h2">Sau ăn 2h</button>
+    </div>
+    <div id="hint" style="font-size:12px;color:var(--muted);margin-bottom:16px"></div>
+
+    <div class="field-lg" style="margin-bottom:16px">
+      <label>Đường huyết (mg/dL)</label>
+      <input type="number" id="mg" class="big-input" placeholder="110" inputmode="decimal" autocomplete="off">
+    </div>
+
+    <!-- KẾT QUẢ TỨC THỜI -->
+    <div id="live" style="display:none;margin-bottom:16px">
+      <div class="verdict" id="liveVerdict"></div>
+    </div>
+
+    <div class="field-lg" style="margin-bottom:16px">
+      <label>Ghi chú món ăn / vận động</label>
+      <textarea id="note" class="big-note" placeholder="VD: 1/3 bát cơm, rau luộc, thịt gà"></textarea>
+    </div>
+
+    <button class="btn" id="save" disabled>Lưu vào dữ liệu</button>
+  </div>
+
+  <!-- THỐNG KÊ -->
+  <div class="card" id="statsCard" style="display:none">
+    <h2>Tổng quan</h2>
+    <div class="stats">
+      <div class="stat"><div class="n" id="stTotal">0</div><div class="l">Lần đo</div></div>
+      <div class="stat"><div class="n" id="stOk" style="color:var(--ok)">0</div><div class="l">Đạt mục tiêu</div></div>
+      <div class="stat"><div class="n" id="stHigh" style="color:var(--high)">0</div><div class="l">Vượt mục tiêu</div></div>
+      <div class="stat"><div class="n" id="stAvg">0</div><div class="l">TB mmol/L</div></div>
+    </div>
+  </div>
+
+  <!-- LỊCH SỬ -->
+  <div class="card">
+    <h2>Lịch sử đo</h2>
+    <div class="toolbar">
+      <button class="btn btn-ghost" id="export">Tải CSV</button>
+    </div>
+    <div id="history"></div>
+  </div>
+</div>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+// ====================================================================
+//  CẤU HÌNH CƠ SỞ DỮ LIỆU  — điền 2 dòng dưới đây (xem hướng dẫn)
+// ====================================================================
+const SUPABASE_URL = "https://cxhvsevxaotvhlcslgrb.supabase.co";
+const SUPABASE_KEY = "sb_publishable_IzJxgrsDzJNXWwVpIqVQCw_yRSJ3Dw5";
+// ====================================================================
+
+let sb = null;
+const dbOn = SUPABASE_URL && SUPABASE_KEY;
+if(dbOn){ try{ sb = createClient(SUPABASE_URL, SUPABASE_KEY); }catch(e){ console.error(e); } }
+
+function showErr(msg){ const e=document.getElementById('dbErr'); e.style.display='block'; e.textContent='Lỗi kết nối: '+msg; }
+
+// ===== Mục tiêu (mmol/L) theo thời điểm =====
+const TARGETS = {
+  doi: { label:"Lúc đói",  max:5.3 },
+  h1:  { label:"Sau ăn 1h", max:7.8 },
+  h2:  { label:"Sau ăn 2h", max:6.7 },
+};
+const toMmol = mg => mg/18;
+const fmt = n => (Math.round(n*10)/10).toFixed(1).replace('.', ',');
+
+// Đánh giá: ổn định / hơi cao / cao
+function assess(mmol, kind){
+  const max = TARGETS[kind].max;
+  if(mmol <= max) return {cls:"ok", ic:"✓", txt:"Ổn định", sub:`Trong mục tiêu (< ${fmt(max)} mmol/L)`};
+  if(mmol <= max + 1.0) return {cls:"warn", ic:"!", txt:"Hơi cao", sub:`Vượt nhẹ mục tiêu < ${fmt(max)} mmol/L`};
+  return {cls:"high", ic:"▲", txt:"Cao", sub:`Vượt mục tiêu < ${fmt(max)} mmol/L`};
+}
+
+// ===== State =====
+let records = [];
+let curKind = "doi";
+let userPicked = false; // người dùng tự chọn thì không tự đoán đè lên
+let editingId = null;   // id bản ghi đang sửa (null = thêm mới)
+const $ = id => document.getElementById(id);
+
+// Tự đoán thời điểm đo tiếp theo dựa trên lần đo gần nhất trong ngày
+function suggestKind(){
+  if(!records.length) return "doi";
+  const today = todayStr();
+  const last = records.find(r => r.date === today); // records[0] mới nhất
+  if(!last) return "doi";                            // ngày mới, chưa đo
+  if(last.kind === "doi") return "h1";               // đói -> sau ăn 1h
+  if(last.kind === "h2")  return "doi";              // sau ăn 2h -> vòng mới, về đói
+  if(last.kind === "h1"){
+    const a = assess(last.mmol, "h1");
+    return a.cls === "ok" ? "doi" : "h2";            // 1h ổn -> về đói; 1h cao -> theo dõi 2h
+  }
+  return "doi";
+}
+function applySuggestion(){
+  if(userPicked){ $('hint').textContent=''; return; }
+  curKind = suggestKind();
+  [...$('seg').children].forEach(x=> x.classList.toggle('active', x.dataset.k===curKind));
+  $('hint').innerHTML = `<span style="color:var(--accent)">●</span> Tự đề xuất: <b style="color:var(--txt)">${TARGETS[curKind].label}</b> — bấm để chọn khác`;
+  updateLive();
+}
+
+// Storage qua Supabase; fallback bộ nhớ tạm nếu chưa cấu hình
+async function load(){
+  if(!sb){ document.getElementById('dbWarn').style.display='block'; return window.__mem || []; }
+  const { data, error } = await sb.from('readings').select('*').order('created_at', { ascending:false });
+  if(error){ showErr(error.message); return []; }
+  return data || [];
+}
+// Thêm 1 bản ghi mới
+async function dbInsert(rec){
+  if(!sb){ window.__mem = [rec, ...(window.__mem||[])]; return rec; }
+  const { data, error } = await sb.from('readings').insert(rec).select().single();
+  if(error){ showErr(error.message); return null; }
+  return data;
+}
+// Cập nhật bản ghi
+async function dbUpdate(id, patch){
+  if(!sb){ (window.__mem||[]).forEach(r=>{ if(r.id===id) Object.assign(r,patch); }); return; }
+  const { error } = await sb.from('readings').update(patch).eq('id', id);
+  if(error) showErr(error.message);
+}
+// Xoá bản ghi
+async function dbDelete(id){
+  if(!sb){ window.__mem = (window.__mem||[]).filter(r=> r.id!==id); return; }
+  const { error } = await sb.from('readings').delete().eq('id', id);
+  if(error) showErr(error.message);
+}
+
+
+// ===== Ngày giờ tự động =====
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+function nowTime(){ return new Date().toTimeString().slice(0,5); }
+
+// segment buttons
+$('seg').addEventListener('click', e=>{
+  const b = e.target.closest('button'); if(!b) return;
+  [...$('seg').children].forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  curKind = b.dataset.k;
+  userPicked = true;   // người dùng tự chọn -> không tự đoán đè trong lần nhập này
+  $('hint').textContent = '';
+  updateLive();
+});
+
+$('mg').addEventListener('input', updateLive);
+
+function updateLive(){
+  const mg = parseFloat($('mg').value);
+  if(!mg || mg<=0){
+    $('live').style.display='none'; $('save').disabled=true;
+    document.body.classList.remove('state-ok','state-warn','state-high');
+    return;
+  }
+  const mmol = toMmol(mg);
+  const a = assess(mmol, curKind);
+  $('live').style.display='block';
+  const v = $('liveVerdict');
+  v.className = 'verdict v-'+a.cls;
+  v.innerHTML = `<span class="ic">${a.ic}</span>`
+    + `<div class="txtwrap">${a.txt} — ${TARGETS[curKind].label}<small>${a.sub}</small></div>`
+    + `<div class="mmolval">${fmt(mmol)}<span>mmol/L</span></div>`;
+  $('save').disabled = false;
+  document.body.classList.remove('state-ok','state-warn','state-high');
+  document.body.classList.add('state-'+a.cls);
+}
+
+// ===== Save (thêm mới hoặc cập nhật) =====
+$('save').addEventListener('click', async ()=>{
+  const mg = parseFloat($('mg').value);
+  if(!mg || mg<=0) return;
+  $('save').disabled = true;
+
+  if(editingId !== null){
+    const patch = {
+      mg: Math.round(mg),
+      mmol: Math.round(toMmol(mg)*10)/10,
+      kind: curKind,
+      note: $('note').value.trim(),
+      edited: true,
+    };
+    const r = records.find(x=> x.id === editingId);
+    if(r) Object.assign(r, patch);
+    await dbUpdate(editingId, patch);
+    exitEdit();
+  } else {
+    const rec = {
+      id: (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())),
+      mg: Math.round(mg),
+      mmol: Math.round(toMmol(mg)*10)/10,
+      kind: curKind,
+      date: todayStr(),
+      time: nowTime(),
+      note: $('note').value.trim(),
+      edited: false,
+      created_at: new Date().toISOString(),
+    };
+    const saved = await dbInsert(rec);
+    records.unshift(saved || rec);
+  }
+
+  $('mg').value=''; $('note').value='';
+  $('live').style.display='none';
+  userPicked = false;
+  render();
+  applySuggestion();
+});
+
+// ===== Sửa bản ghi cũ =====
+function startEdit(id){
+  const r = records.find(x=> String(x.id) === String(id));
+  if(!r) return;
+  editingId = r.id;
+  curKind = r.kind; userPicked = true;
+  [...$('seg').children].forEach(x=> x.classList.toggle('active', x.dataset.k===r.kind));
+  $('hint').textContent = '';
+  $('mg').value = r.mg;
+  $('note').value = r.note || '';
+  $('formTitle').textContent = 'Sửa kết quả đo';
+  $('editbar').classList.add('on');
+  $('save').textContent = 'Lưu thay đổi';
+  updateLive();
+  document.querySelector('.card').scrollIntoView({behavior:'smooth', block:'start'});
+}
+function exitEdit(){
+  editingId = null;
+  $('formTitle').textContent = 'Nhập kết quả đo';
+  $('editbar').classList.remove('on');
+  $('save').textContent = 'Lưu vào dữ liệu';
+}
+$('cancelEdit').addEventListener('click', ()=>{
+  exitEdit();
+  $('mg').value=''; $('note').value='';
+  $('live').style.display='none'; $('save').disabled=true;
+  userPicked = false;
+  applySuggestion();
+});
+
+// ===== Render =====
+function render(){
+  // stats
+  if(records.length){
+    $('statsCard').style.display='block';
+    const ok = records.filter(r=> assess(r.mmol, r.kind).cls==='ok').length;
+    const high = records.length - ok;
+    const avg = records.reduce((s,r)=>s+r.mmol,0)/records.length;
+    $('stTotal').textContent = records.length;
+    $('stOk').textContent = ok;
+    $('stHigh').textContent = high;
+    $('stAvg').textContent = fmt(avg);
+  } else $('statsCard').style.display='none';
+
+  // history
+  const h = $('history');
+  if(!records.length){ h.innerHTML = '<div class="empty">Chưa có dữ liệu. Nhập kết quả đo đầu tiên ở trên.</div>'; return; }
+  let rows = records.map(r=>{
+    const a = assess(r.mmol, r.kind);
+    const d = r.date ? r.date.split('-').reverse().slice(0,2).join('/') : '';
+    return `<tr>
+      <td>${d}<br><span style="color:var(--muted);font-size:11px">${r.time||''}</span></td>
+      <td>${TARGETS[r.kind].label}</td>
+      <td><span class="mval ${a.cls==='ok'?'':'hi'}">${fmt(r.mmol)}</span><br>
+          <span style="color:var(--muted);font-size:11px">${r.mg} mg/dL</span></td>
+      <td><span class="pill p-${a.cls}">${a.txt}</span></td>
+      <td class="note-cell hide-sm">${r.note? escapeHtml(r.note):'<span style="opacity:.4">—</span>'}${r.edited?'<span style="color:var(--muted);font-size:10px"> (đã sửa)</span>':''}</td>
+      <td style="text-align:right;white-space:nowrap">
+        <button class="edit" data-id="${r.id}" title="Sửa">✎</button>
+        <button class="del" data-id="${r.id}" title="Xoá">✕</button>
+      </td>
+    </tr>`;
+  }).join('');
+  h.innerHTML = `<table>
+    <thead><tr><th>Ngày</th><th>Thời điểm</th><th>mmol/L</th><th>Đánh giá</th><th class="hide-sm">Ghi chú</th><th></th></tr></thead>
+    <tbody>${rows}</tbody></table>`;
+  h.querySelectorAll('.edit').forEach(b=> b.onclick = ()=> startEdit(b.dataset.id));
+  h.querySelectorAll('.del').forEach(b=> b.onclick = async ()=>{
+    const id = b.dataset.id;
+    if(editingId !== null && id===editingId){ exitEdit(); $('mg').value=''; $('note').value=''; $('live').style.display='none'; $('save').disabled=true; }
+    records = records.filter(r=> String(r.id) !== id);
+    await dbDelete(id);
+    render();
+  });
+}
+function escapeHtml(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+// ===== Export CSV =====
+$('export').addEventListener('click', ()=>{
+  if(!records.length) return;
+  const head = "Ngày,Giờ,Thời điểm,mg/dL,mmol/L,Đánh giá,Ghi chú\n";
+  const body = records.map(r=>{
+    const a = assess(r.mmol, r.kind);
+    const n = '"'+(r.note||'').replace(/"/g,'""')+'"';
+    return [r.date, r.time, TARGETS[r.kind].label, r.mg, fmt(r.mmol), a.txt, n].join(',');
+  }).join('\n');
+  const blob = new Blob(["\uFEFF"+head+body], {type:'text/csv;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download='duong-huyet.csv'; a.click();
+  URL.revokeObjectURL(url);
+});
+
+// ===== Boot =====
+(async ()=>{ records = await load(); render(); applySuggestion(); })();
+</script>
+</body>
+</html>
