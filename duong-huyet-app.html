@@ -116,6 +116,7 @@
     <b>Chưa kết nối cơ sở dữ liệu.</b> Mở file này và điền <code>SUPABASE_URL</code> và <code>SUPABASE_KEY</code> ở đầu phần script. Hiện dữ liệu chỉ lưu tạm trong phiên.
   </div>
   <div id="dbErr" style="display:none;background:#f8d2d2;border:1px solid #c12f2f;color:#7a1d1d;border-radius:12px;padding:14px 16px;margin-bottom:20px;font-size:13px;line-height:1.6"></div>
+  <div id="dbStatus" style="display:none;border-radius:10px;padding:9px 14px;margin-bottom:20px;font-size:12px;font-weight:500"></div>
 
   <!-- NHẬP -->
   <div class="card">
@@ -238,12 +239,36 @@ function applySuggestion(){
   updateLive();
 }
 
+// Báo trạng thái kết nối
+function setStatus(kind, text){
+  const e = document.getElementById('dbStatus');
+  e.style.display='block';
+  if(kind==='ok'){ e.style.background='#cdf0e2'; e.style.color='#0a5c46'; e.style.border='1px solid #0a7256'; }
+  else { e.style.background='#fbe9c2'; e.style.color='#6a4204'; e.style.border='1px solid #a86807'; }
+  e.textContent = text;
+}
+
 // Storage qua Supabase; fallback bộ nhớ tạm nếu chưa cấu hình
 async function load(){
-  if(!sb){ document.getElementById('dbWarn').style.display='block'; return window.__mem || []; }
-  const { data, error } = await sb.from('readings').select('*').order('created_at', { ascending:false });
-  if(error){ showErr(error.message); return []; }
-  return data || [];
+  if(!sb){
+    document.getElementById('dbWarn').style.display='block';
+    setStatus('warn','Đang chạy ngoại tuyến — dữ liệu chỉ lưu tạm trong phiên này.');
+    return window.__mem || [];
+  }
+  try{
+    const { data, error } = await sb.from('readings').select('*').order('created_at', { ascending:false });
+    if(error){
+      setStatus('warn','Không đọc được dữ liệu từ cơ sở dữ liệu.');
+      const e=document.getElementById('dbErr'); e.style.display='block'; e.textContent='Lỗi cơ sở dữ liệu: '+error.message;
+      return [];
+    }
+    setStatus('ok','Đã kết nối cơ sở dữ liệu — '+(data?data.length:0)+' bản ghi.');
+    return data || [];
+  }catch(err){
+    setStatus('warn','Không kết nối được cơ sở dữ liệu (kiểm tra mạng / cấu hình).');
+    const e=document.getElementById('dbErr'); e.style.display='block'; e.textContent='Lỗi: '+(err.message||err);
+    return [];
+  }
 }
 // Thêm 1 bản ghi mới
 async function dbInsert(rec){
