@@ -31,23 +31,28 @@
   @media(prefers-reduced-motion:reduce){ h1 .heart,h1 .ele{animation:none} }
 
   /* Popup lời nhắn giữa màn hình - không khung */
-  #pop{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:60;
-    background:rgba(20,35,48,.18);backdrop-filter:blur(3px)}
-  #pop.show{display:flex;animation:fadein .3s ease}
-  #pop .emo{font-size:96px;line-height:1;margin-bottom:6px;
-    filter:drop-shadow(0 8px 20px rgba(0,0,0,.25));animation:emoIn .6s cubic-bezier(.2,1.5,.4,1)}
-  #pop .msg{font-size:30px;font-weight:800;line-height:1.35;text-align:center;max-width:88%;
-    color:#fff;animation:msgIn .5s ease .12s both;letter-spacing:-.3px;
-    -webkit-text-stroke:1px rgba(0,0,0,.35);
-    text-shadow:0 0 2px #fff,0 0 6px rgba(255,255,255,.9),0 3px 14px rgba(0,0,0,.45),
-                -1px -1px 0 #fff,1px -1px 0 #fff,-1px 1px 0 #fff,1px 1px 0 #fff}
-  #pop.p-ok .msg{color:#0a7256}
-  #pop.p-warn .msg{color:#a86807}
-  #pop.p-high .msg{color:#b52828}
+  #pop{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:60;
+    background:rgba(15,25,35,.35);backdrop-filter:blur(6px);padding:24px}
+  #pop.show{display:flex;animation:fadein .25s ease}
+  #pop .glass{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;
+    background:transparent;border:none;border-radius:0;padding:0;
+    min-width:0;max-width:340px;box-shadow:none;
+    animation:popUp .45s cubic-bezier(.2,1.25,.45,1)}
+  #pop .ring{width:100px;height:100px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:54px;margin-bottom:18px;box-shadow:0 10px 30px rgba(0,0,0,.25);animation:emoIn .55s cubic-bezier(.2,1.5,.4,1)}
+  #pop .msg{font-size:22px;font-weight:700;line-height:1.4;letter-spacing:-.3px;color:#fff;
+    text-shadow:0 2px 12px rgba(0,0,0,.45);animation:msgIn .45s ease .1s both;max-width:300px}
+  #pop .bar{display:none}
+  /* tông màu theo trạng thái (chỉ đổi vòng emoji) */
+  #pop.p-ok .ring{background:#d7f3e8;color:#0a7256}
+  #pop.p-warn .ring{background:#fbeccb;color:#a86807}
+  #pop.p-high .ring{background:#fbdcdc;color:#b52828}
   @keyframes fadein{from{opacity:0}to{opacity:1}}
-  @keyframes emoIn{0%{transform:scale(0) rotate(-25deg);opacity:0}60%{transform:scale(1.25) rotate(8deg)}100%{transform:scale(1) rotate(0);opacity:1}}
-  @keyframes msgIn{0%{transform:translateY(16px);opacity:0}100%{transform:translateY(0);opacity:1}}
-  @media(prefers-reduced-motion:reduce){ #pop .emo,#pop .msg{animation:none} }
+  @keyframes popUp{0%{transform:scale(.85) translateY(12px);opacity:0}100%{transform:scale(1) translateY(0);opacity:1}}
+  @keyframes emoIn{0%{transform:scale(0) rotate(-25deg);opacity:0}60%{transform:scale(1.2) rotate(8deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+  @keyframes msgIn{0%{transform:translateY(10px);opacity:0}100%{transform:translateY(0);opacity:1}}
+  @keyframes countdown{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+  @media(prefers-reduced-motion:reduce){ #pop .glass,#pop .ring,#pop .msg,#pop .bar{animation:none} }
 
   /* Modal xác nhận xoá */
   #confirmModal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:62;
@@ -157,6 +162,21 @@
   .stat .n{font-size:24px;font-weight:700}
   .stat .l{font-size:12px;color:var(--muted);margin-top:2px}
 
+  /* Carousel tổng quan */
+  .slide-dots{display:flex;gap:6px;align-items:center}
+  .slide-dots .snav{background:var(--panel2);border:none;color:var(--muted);cursor:pointer;width:26px;height:26px;border-radius:50%;font-size:16px;line-height:1;display:flex;align-items:center;justify-content:center;padding:0}
+  .slide-dots .snav:hover{background:var(--line);color:var(--txt)}
+  .slide-dots .dot{width:8px;height:8px;border-radius:50%;border:none;background:var(--line);cursor:pointer;padding:0;transition:background .2s,width .2s}
+  .slide-dots .dot.active{background:var(--accent);width:18px;border-radius:5px}
+  .slides{display:flex;overflow:hidden;touch-action:pan-y;width:100%}
+  .slide{flex:0 0 100%;width:100%;box-sizing:border-box}
+  .chart-wrap{display:flex;align-items:center;justify-content:center;gap:24px;padding:10px 0}
+  .chart-wrap canvas{flex:none;display:block}
+  .chart-legend{display:flex;flex-direction:column;gap:12px;flex:none}
+  .chart-legend .lg{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px}
+  .chart-legend .lg b{color:var(--txt);margin-left:2px}
+  .chart-legend .lg-dot{width:11px;height:11px;border-radius:50%;display:inline-block}
+
   .pill{display:inline-block;padding:3px 11px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
   .p-ok{background:var(--okbg);color:var(--ok)}
   .p-warn{background:var(--warnbg);color:var(--warn)}
@@ -181,7 +201,6 @@
   .hc-val .mgsub{color:var(--muted);font-size:11px}
   .mval{font-weight:700;font-size:15px}
   .mval.hi{color:var(--high)}
-  .hist-ed{color:var(--muted);font-size:10px;margin-left:4px}
   /* nút sửa/xoá inline cho web (hover) */
   .hrow-front{cursor:default}
   .empty{color:var(--muted);text-align:center;padding:30px 0;font-size:14px}
@@ -196,7 +215,9 @@
     .verdict .mmolval{font-size:24px}
     h1{font-size:21px}
     .card{padding:18px 16px}
-    .seg button{font-size:12px;padding:11px 4px}
+    .seg{flex-wrap:wrap}
+    .seg button{font-size:13px;padding:11px 6px;flex:1 1 calc(50% - 4px)}
+    .seg .seg-h2{flex:1 1 100%}
     .verdict .txtwrap{font-size:15px}
     .stats{grid-template-columns:repeat(2,1fr)}
     .hhead{grid-template-columns:1.2fr .9fr 1fr .9fr;font-size:11px;padding:0 12px 8px}
@@ -209,7 +230,6 @@
     .pill{padding:2px 8px;font-size:10px}
   }
   @media(max-width:380px){
-    .seg button{font-size:11px;letter-spacing:-.2px}
     h1{font-size:19px}
   }
 </style>
@@ -218,7 +238,7 @@
 <div class="wrap">
   <header>
     <h1><span class="ele" aria-hidden="true">🐘</span>Theo dõi đường huyết Vợ iu<span class="heart">♥</span></h1>
-    <div class="sub">Nhập mg/dL — tự quy ra mmol/L và đánh giá theo thời điểm đo</div>
+    <div class="sub">Nhập mg/dL → mmol/L và đánh giá theo thời điểm đo</div>
   </header>
 
 
@@ -227,12 +247,11 @@
     <h2 id="formTitle">Nhập kết quả đo</h2>
 
     <label>Thời điểm đo</label>
-    <div class="seg" id="seg" style="margin-bottom:6px">
+    <div class="seg" id="seg" style="margin-bottom:16px">
       <button data-k="doi" class="active">Lúc đói</button>
       <button data-k="h1">Sau ăn 1h</button>
-      <button data-k="h2">Sau ăn 2h</button>
+      <button data-k="h2" class="seg-h2">Sau ăn 2h</button>
     </div>
-    <div id="hint" style="font-size:12px;color:var(--muted);margin-bottom:16px"></div>
 
     <div class="field-lg" style="margin-bottom:16px">
       <label>Đường huyết (mg/dL)</label>
@@ -255,12 +274,33 @@
 
   <!-- THỐNG KÊ -->
   <div class="card" id="statsCard" style="display:none">
-    <h2>Tổng quan</h2>
-    <div class="stats">
-      <div class="stat"><div class="n" id="stTotal">0</div><div class="l">Lần đo</div></div>
-      <div class="stat"><div class="n" id="stOk" style="color:var(--ok)">0</div><div class="l">Đạt mục tiêu</div></div>
-      <div class="stat"><div class="n" id="stHigh" style="color:var(--high)">0</div><div class="l">Vượt mục tiêu</div></div>
-      <div class="stat"><div class="n" id="stAvg">0</div><div class="l">TB mmol/L</div></div>
+    <div class="card-head">
+      <h2 style="margin-bottom:0">Tổng quan</h2>
+      <div class="slide-dots">
+        <button class="snav" id="slPrev" aria-label="Trước">‹</button>
+        <button class="dot active" data-s="0" aria-label="Số liệu"></button>
+        <button class="dot" data-s="1" aria-label="Biểu đồ"></button>
+        <button class="snav" id="slNext" aria-label="Sau">›</button>
+      </div>
+    </div>
+    <div class="slides" id="statsSlides">
+      <div class="slide">
+        <div class="stats">
+          <div class="stat"><div class="n" id="stTotal">0</div><div class="l">Lần đo</div></div>
+          <div class="stat"><div class="n" id="stOk" style="color:var(--ok)">0</div><div class="l">Đạt mục tiêu</div></div>
+          <div class="stat"><div class="n" id="stHigh" style="color:var(--high)">0</div><div class="l">Vượt mục tiêu</div></div>
+          <div class="stat"><div class="n" id="stAvg">0</div><div class="l">TB mmol/L</div></div>
+        </div>
+      </div>
+      <div class="slide">
+        <div class="chart-wrap">
+          <canvas id="donut" width="320" height="320" style="width:150px;height:150px"></canvas>
+          <div class="chart-legend">
+            <div class="lg"><span class="lg-dot" style="background:var(--ok)"></span> Đạt mục tiêu <b id="lgOk">0</b></div>
+            <div class="lg"><span class="lg-dot" style="background:var(--high)"></span> Vượt mục tiêu <b id="lgHigh">0</b></div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -274,8 +314,11 @@
   </div>
 </div>
 <div id="pop" role="status" aria-live="polite">
-  <div class="emo" id="popEmo">🎉</div>
-  <div class="msg" id="popMsg"></div>
+  <div class="glass">
+    <div class="ring" id="popEmo">🎉</div>
+    <div class="msg" id="popMsg"></div>
+    <div class="bar" id="popBar"></div>
+  </div>
 </div>
 
 <div id="editModal" aria-hidden="true">
@@ -313,6 +356,7 @@
   <div class="tm-bar">
     <span class="ttl">Bảng theo dõi</span>
     <div class="tm-tools">
+      <button class="tm-btn" id="rotateBtn" aria-label="Xoay 90 độ">⟳</button>
       <button class="tm-btn" id="zoomOut" aria-label="Thu nhỏ">−</button>
       <button class="tm-btn" id="zoomIn" aria-label="Phóng to">+</button>
       <button class="tm-btn" id="tableDownload" aria-label="Tải ảnh">⤓</button>
@@ -379,10 +423,9 @@ function suggestKind(){
   return "doi";
 }
 function applySuggestion(){
-  if(userPicked){ $('hint').textContent=''; return; }
+  if(userPicked) return;
   curKind = suggestKind();
   [...$('seg').children].forEach(x=> x.classList.toggle('active', x.dataset.k===curKind));
-  $('hint').innerHTML = `<span style="color:var(--accent)">●</span> Tự đề xuất: <b style="color:var(--txt)">${TARGETS[curKind].label}</b> — bấm để chọn khác`;
   updateLive();
 }
 
@@ -430,7 +473,6 @@ $('seg').addEventListener('click', e=>{
   b.classList.add('active');
   curKind = b.dataset.k;
   userPicked = true;   // người dùng tự chọn -> không tự đoán đè trong lần nhập này
-  $('hint').textContent = '';
   updateLive();
 });
 
@@ -495,15 +537,17 @@ function showPopup(cls){
   };
   const d = data[cls] || data.ok;
   const text = d.list[Math.floor(Math.random()*d.list.length)];
+  const dur = cls==='ok' ? 2800 : 2400;
   const pop = $('pop');
   pop.className = 'p-'+cls;
   $('popEmo').textContent = d.emo;
   $('popMsg').textContent = text;
+  $('popBar').style.animationDuration = dur+'ms';
   void pop.offsetWidth;
   pop.classList.add('show', 'p-'+cls);
   if(cls==='ok') launchConfetti();           // tung hoa khi đạt mục tiêu
   clearTimeout(popTimer);
-  popTimer = setTimeout(hidePopup, cls==='ok'?2600:2200);
+  popTimer = setTimeout(hidePopup, dur);
   pop.onclick = hidePopup;                    // chạm để tắt sớm
 }
 function hidePopup(){
@@ -610,6 +654,7 @@ function render(){
     $('stOk').textContent = ok;
     $('stHigh').textContent = high;
     $('stAvg').textContent = fmt(avg);
+    requestAnimationFrame(()=> drawDonut(ok, high));
   } else $('statsCard').style.display='none';
 
   // history
@@ -855,18 +900,25 @@ function downloadTable(){
 }
 
 // ===== Modal xem ảnh: zoom + pan =====
-let tmScale=1, tmX=0, tmY=0;
+let tmScale=1, tmX=0, tmY=0, tmRot=0;
 function tmApply(){
   const img=$('tableImg');
-  img.style.transform=`translate(${tmX}px,${tmY}px) scale(${tmScale})`;
+  img.style.transform=`translate(${tmX}px,${tmY}px) rotate(${tmRot}deg) scale(${tmScale})`;
 }
-function tmReset(){ tmScale=1; tmX=0; tmY=0; tmApply(); }
+function tmReset(){
+  const img=$('tableImg');
+  img.style.transition='none';        // tránh quay ngược khi mở ảnh mới
+  tmScale=1; tmX=0; tmY=0; tmRot=0; tmApply();
+  void img.offsetWidth;               // ép áp dụng ngay
+  img.style.transition='';
+}
 function tmZoom(delta, cx, cy){
   const prev=tmScale;
   tmScale=Math.min(6, Math.max(1, tmScale+delta));
   if(tmScale===1){ tmX=0; tmY=0; }
   tmApply();
 }
+function tmRotate(){ tmRot += 90; tmApply(); }
 
 function viewTable(){
   const cv = buildTableCanvas();
@@ -882,6 +934,7 @@ $('tableClose').addEventListener('click', closeTable);
 $('tableDownload').addEventListener('click', downloadTable);
 $('zoomIn').addEventListener('click', ()=> tmZoom(0.4));
 $('zoomOut').addEventListener('click', ()=> tmZoom(-0.4));
+$('rotateBtn').addEventListener('click', tmRotate);
 
 // cuộn chuột để zoom
 $('tmStage').addEventListener('wheel', e=>{ e.preventDefault(); tmZoom(e.deltaY<0?0.3:-0.3); }, {passive:false});
@@ -915,6 +968,84 @@ $('tmStage').addEventListener('wheel', e=>{ e.preventDefault(); tmZoom(e.deltaY<
 // nền (ngoài ảnh) hoặc Esc để đóng
 $('tableModal').addEventListener('click', e=>{ if(e.target.id==='tableModal' || e.target.id==='tmStage') closeTable(); });
 window.addEventListener('keydown', e=>{ if(e.key==='Escape') closeTable(); });
+
+// ===== Biểu đồ tròn (donut) vẽ bằng canvas thuần =====
+let lastDonut = {ok:0, high:0};
+function drawDonut(ok, high){
+  lastDonut = {ok, high};
+  $('lgOk').textContent = ok;
+  $('lgHigh').textContent = high;
+  const cv = $('donut'); if(!cv || !cv.getContext) return;
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;       // 320 x 320 (cố định)
+  const cx = W/2, cy = H/2, R = 130, sw = 46;
+  const css = getComputedStyle(document.documentElement);
+  const okCol = (css.getPropertyValue('--ok').trim()) || '#0a7256';
+  const hiCol = (css.getPropertyValue('--high').trim()) || '#c12f2f';
+  const lineCol = (css.getPropertyValue('--line').trim()) || '#e5e9ee';
+  const txtCol = (css.getPropertyValue('--txt').trim()) || '#1a2730';
+  const mutedCol = (css.getPropertyValue('--muted').trim()) || '#6b7d89';
+  const total = ok + high;
+  const pct = total ? Math.round(ok/total*100) : 0;
+
+  ctx.clearRect(0,0,W,H);
+
+  function arc(start, end, color){
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, start, end);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = sw;
+    ctx.stroke();
+  }
+
+  const TAU = Math.PI*2;
+  const startA = -Math.PI/2;
+  if(total === 0){
+    arc(0, TAU, lineCol);
+  } else {
+    const okEnd = startA + TAU*(ok/total);
+    arc(okEnd, startA + TAU, hiCol);   // phần vượt (đỏ)
+    arc(startA, okEnd, okCol);         // phần đạt (xanh)
+  }
+
+  // chữ giữa
+  ctx.fillStyle = txtCol;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.font = '700 56px system-ui, -apple-system, sans-serif';
+  ctx.fillText(total ? pct+'%' : '–', cx, cy-12);
+  ctx.fillStyle = mutedCol;
+  ctx.font = '400 26px system-ui, -apple-system, sans-serif';
+  ctx.fillText(total ? 'đạt mục tiêu' : 'chưa có', cx, cy+30);
+}
+
+// ===== Điều khiển slide tổng quan =====
+let goSlide = function(){};
+(function(){
+  let cur = 0;
+  function go(i){
+    cur = Math.max(0, Math.min(1, i));
+    const sl = $('statsSlides');
+    if(sl) sl.style.transform = `translateX(${-cur*100}%)`;
+    document.querySelectorAll('.slide-dots .dot').forEach((d,idx)=> d.classList.toggle('active', idx===cur));
+    if(cur===1) drawDonut(lastDonut.ok, lastDonut.high);   // vẽ lại khi xem biểu đồ
+  }
+  goSlide = go;
+  document.querySelectorAll('.slide-dots .dot').forEach(d=> d.addEventListener('click', ()=> go(+d.dataset.s)));
+  const prev=$('slPrev'), next=$('slNext');
+  if(prev) prev.addEventListener('click', ()=> go(cur-1));
+  if(next) next.addEventListener('click', ()=> go(cur+1));
+  const sl = $('statsSlides');
+  if(sl){ sl.style.transition='transform .3s ease'; }
+  // vuốt ngang
+  let sx=0, sdx=0, drag=false;
+  sl && sl.addEventListener('touchstart', e=>{ sx=e.touches[0].clientX; drag=true; sdx=0; }, {passive:true});
+  sl && sl.addEventListener('touchmove', e=>{ if(drag) sdx=e.touches[0].clientX - sx; }, {passive:true});
+  sl && sl.addEventListener('touchend', ()=>{
+    if(!drag) return; drag=false;
+    if(sdx < -40) go(cur+1); else if(sdx > 40) go(cur-1);
+  });
+})();
 
 // ===== Xác nhận xoá (modal) =====
 function confirmDelete(label){
