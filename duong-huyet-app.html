@@ -183,6 +183,7 @@
     transition:transform .25s ease}
   .hc-when .d{font-weight:500}
   .hc-when .t{color:var(--muted);margin-left:5px}
+  .hc-when .kind-sm{display:none}
   .hc-val{display:flex;align-items:baseline;gap:6px;white-space:nowrap}
   .hc-val .mgsub{color:var(--muted);font-size:11px}
   .hc-note{color:var(--muted);font-size:12px;white-space:nowrap;overflow-x:auto;
@@ -211,9 +212,13 @@
     .seg .seg-h2{flex:1 1 100%}
     .verdict .txtwrap{font-size:15px}
     .stats{grid-template-columns:repeat(2,1fr)}
-    .hhead{grid-template-columns:1fr .9fr 1fr .9fr;font-size:11px;padding:0 12px 8px}
-    .hrow-front{grid-template-columns:1fr .9fr 1fr .9fr;padding:11px 12px;font-size:12px}
-    .hhead div:nth-child(5),.hc-note{display:none}
+    /* 4 cột: Ngày+Thời điểm | mmol | Đánh giá | Ghi chú */
+    .hhead{grid-template-columns:1.1fr 1fr .8fr 1.1fr;font-size:11px;padding:0 12px 8px}
+    .hrow-front{grid-template-columns:1.1fr 1fr .8fr 1.1fr;padding:11px 12px;font-size:12px}
+    .hhead div:nth-child(2){display:none}   /* ẩn header "Thời điểm" */
+    .hc-kind{display:none}                   /* ẩn cột thời điểm riêng */
+    .hc-when .kind-sm{display:block;color:var(--muted);font-size:11px;margin-top:1px}
+    .hc-note{display:block;white-space:normal;word-break:break-word;line-height:1.3;font-size:11px}
     .hc-when{display:flex;flex-direction:column;line-height:1.3}
     .hc-when .t{margin-left:0;font-size:11px}
     .hc-val{flex-direction:column;align-items:flex-start;gap:1px;line-height:1.2}
@@ -640,7 +645,7 @@ function render(){
         <button class="act-del" data-id="${r.id}" aria-label="Xoá">✕</button>
       </div>
       <div class="hrow-front">
-        <div class="hc hc-when"><span class="d">${d}</span><span class="t">${r.time||''}</span></div>
+        <div class="hc hc-when"><span class="d">${d}</span><span class="t">${r.time||''}</span><span class="kind-sm">${TARGETS[r.kind].label}</span></div>
         <div class="hc hc-kind">${TARGETS[r.kind].label}</div>
         <div class="hc hc-val"><span class="mval ${a.cls==='ok'?'':'hi'}">${fmt(r.mmol)}</span><span class="mgsub">${r.mg} mg/dL</span></div>
         <div class="hc hc-eval"><span class="pill p-${a.cls}">${a.txt}</span></div>
