@@ -447,20 +447,19 @@ function render(){
 function escapeHtml(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 
 // ===== Xuất ảnh bảng theo dõi (PNG) =====
-// Suy ra bữa theo giờ đo
 function mealOf(time){
   const h = parseInt((time||'12:00').slice(0,2),10);
   const m = parseInt((time||'12:00').slice(3,5),10);
   const t = h*60 + m;
-  if(t < 10*60+30) return 'sang';      // trước 10:30
-  if(t < 16*60)    return 'trua';      // 10:30 - 16:00
-  return 'toi';                        // sau 16:00
+  if(t < 10*60+30) return 'sang';
+  if(t < 16*60)    return 'trua';
+  return 'toi';
 }
 
 $('export').addEventListener('click', ()=>{
   if(!records.length){ alert('Chưa có dữ liệu để xuất.'); return; }
 
-  // Gom dữ liệu theo ngày -> bữa -> {doi,h1,h2, notes[]}
+  function blank(){ return { doi:null, h1:null, h2:null, notes:[] }; }
   const byDate = {};
   for(const r of records){
     const d = r.date || '';
@@ -470,143 +469,142 @@ $('export').addEventListener('click', ()=>{
     cell[r.kind] = r;
     if(r.note) cell.notes.push(r.note);
   }
-  function blank(){ return { doi:null, h1:null, h2:null, notes:[] }; }
-  const dates = Object.keys(byDate).sort(); // tăng dần theo ngày (YYYY-MM-DD)
+  const dates = Object.keys(byDate).sort();
 
-  // ----- Kích thước bảng -----
-  const scale = 2; // độ nét
-  const padX = 10, padY = 8;
-  const colDate = 64;
-  const colDoi = 56, colH1 = 56, colH2 = 56, colNote = 150; // mỗi bữa
-  const mealW = colDoi + colH1 + colH2 + colNote;
-  const totalW = colDate + mealW*3;
-  const headerH = 56;            // 2 hàng tiêu đề
-  const rowH = 70;
-  const titleH = 46;
-  const footerH = 54;
-  const W = totalW;
-  const H = titleH + headerH + rowH*dates.length + footerH;
+  const sc = 2;
+  const colDate=58, cDoi=54, cDiary=150, cH1=60, cH2=60, colNote=150;
+  const mealW = cDoi + cDiary + cH1 + cH2;
+  const W = colDate + mealW*3 + colNote;
+  const titleH=42, headerH=60, footerH=42, lh=15;
+
+  const mealKeys = ['sang','trua','toi'];
+  const mealNames = ['SÁNG','TRƯA','TỐI'];
+
+  // chiều cao mỗi hàng theo số dòng nhật ký + ghi chú
+  function diaryLines(cell){ return cell.notes.length ? cell.notes : []; }
+  const cv0 = document.createElement('canvas'); const mx0 = cv0.getContext('2d');
+  function wrapCount(text, maxW, font){
+    mx0.font = font; if(!text) return 0;
+    const words = String(text).split(' '); let line='', n=1;
+    for(const w of words){ const t=line?line+' '+w:w; if(mx0.measureText(t).width>maxW && line){ n++; line=w; } else line=t; }
+    return n;
+  }
+  const heights = dates.map(d=>{
+    const data = byDate[d];
+    let maxL = 1;
+    for(const k of mealKeys){
+      const lines = data[k].notes.join(' • ');
+      maxL = Math.max(maxL, wrapCount(lines, cDiary-12, '11px Arial'));
+    }
+    const noteLines = wrapCount(allNotes(data), colNote-12, '11px Arial');
+    return Math.max(56, 14 + Math.max(maxL, noteLines)*lh);
+  });
+  function allNotes(data){ // ghi chú chung = gộp tất cả note trong ngày, ưu tiên những cái dài (xế...)
+    const all = [...data.sang.notes, ...data.trua.notes, ...data.toi.notes];
+    return ''; // để trống cột ghi chú chung (nhật ký đã chứa ghi chú từng bữa)
+  }
+  const bodyH = heights.reduce((a,b)=>a+b,0);
+  const H = titleH + headerH + bodyH + footerH;
 
   const cv = document.createElement('canvas');
-  cv.width = W*scale; cv.height = H*scale;
+  cv.width = W*sc; cv.height = H*sc;
   const cx = cv.getContext('2d');
-  cx.scale(scale, scale);
-  cx.textBaseline = 'middle';
-  const RED = '#c0392b', BLK = '#1a2730', MUT = '#5f6f7a', LINE = '#9bb0bd', HEAD = '#e8eef2';
+  cx.scale(sc,sc); cx.textBaseline='middle';
+  const RED='#c0392b', BLK='#1a2730', MUT='#5f6f7a', LINE='#96a5b4', HEAD='#dbe1f2';
 
-  // nền trắng
-  cx.fillStyle = '#fff'; cx.fillRect(0,0,W,H);
-
-  // tiêu đề
-  cx.fillStyle = BLK; cx.font = '700 20px Arial'; cx.textAlign = 'center';
+  cx.fillStyle='#fff'; cx.fillRect(0,0,W,H);
+  cx.fillStyle=BLK; cx.font='700 19px Arial'; cx.textAlign='center';
   cx.fillText('BẢNG THEO DÕI ĐƯỜNG HUYẾT', W/2, titleH/2);
 
   const top = titleH;
-  // ----- vẽ header -----
-  cx.fillStyle = HEAD; cx.fillRect(0, top, W, headerH);
-  cx.strokeStyle = LINE; cx.lineWidth = 1;
+  cx.fillStyle=HEAD; cx.fillRect(0, top, W, headerH);
 
-  const meals = [
-    {name:'SÁNG', x: colDate},
-    {name:'TRƯA', x: colDate + mealW},
-    {name:'TỐI',  x: colDate + mealW*2},
-  ];
-  // hàng tiêu đề 1: NGÀY + tên bữa + GHI CHÚ (mỗi bữa có cột ghi chú riêng nên gộp tên bữa cả cụm)
-  cx.fillStyle = BLK; cx.font = '700 13px Arial'; cx.textAlign = 'center';
-  cx.fillText('NGÀY', colDate/2, top + headerH/2);
-  for(const m of meals) cx.fillText(m.name, m.x + mealW/2, top + headerH/4);
+  const mealX = i => colDate + mealW*i;
+  // header hàng 1
+  cx.fillStyle=BLK; cx.font='700 12px Arial'; cx.textAlign='center';
+  cx.fillText('NGÀY', colDate/2, top+headerH/2);
+  for(let i=0;i<3;i++) cx.fillText(mealNames[i], mealX(i)+mealW/2, top+headerH/4);
+  cx.fillText('GHI CHÚ', colDate+mealW*3+colNote/2, top+headerH/2);
 
-  // hàng tiêu đề 2: các cột con
-  cx.font = '600 10px Arial'; cx.fillStyle = MUT;
-  const subY = top + headerH*0.72;
-  function subhead(x){
-    cx.fillText('Đói', x + colDoi/2, subY);
-    cx.fillText('1h', x + colDoi + colH1/2, subY);
-    cx.fillText('2h', x + colDoi + colH1 + colH2/2, subY);
-    cx.fillText('Ghi chú', x + colDoi+colH1+colH2 + colNote/2, subY);
+  // header hàng 2: cột con
+  function sub(x){
+    cx.font='700 9px Arial'; cx.fillStyle=BLK;
+    cx.fillText('Lúc đói', x+cDoi/2, top+headerH*0.62);
+    cx.fillText('Nhật ký', x+cDoi+cDiary/2, top+headerH*0.72);
+    cx.fillText('Sau ăn 1h', x+cDoi+cDiary+cH1/2, top+headerH*0.62);
+    cx.fillText('Sau ăn 2h', x+cDoi+cDiary+cH1+cH2/2, top+headerH*0.62);
+    cx.font='8px Arial'; cx.fillStyle=MUT;
+    cx.fillText('(<5,3)', x+cDoi/2, top+headerH*0.84);
+    cx.fillText('(<7,8)', x+cDoi+cDiary+cH1/2, top+headerH*0.84);
+    cx.fillText('(<6,7)', x+cDoi+cDiary+cH1+cH2/2, top+headerH*0.84);
   }
-  for(const m of meals) subhead(m.x);
+  for(let i=0;i<3;i++) sub(mealX(i));
 
-  // ----- vẽ từng hàng ngày -----
-  cx.textAlign = 'center';
-  dates.forEach((d, i)=>{
-    const y = top + headerH + rowH*i;
-    const data = byDate[d];
-
-    // ngày dd/mm
-    const dd = d ? d.split('-').reverse().slice(0,2).join('/') : '';
-    cx.fillStyle = BLK; cx.font = '700 13px Arial';
-    cx.fillText(dd, colDate/2, y + rowH/2);
-
-    for(const m of meals){
-      const meal = data[mealKeyOf(m.name)];
-      drawVal(cx, meal.doi, 'doi', m.x, y);
-      drawVal(cx, meal.h1, 'h1', m.x + colDoi, y);
-      drawVal(cx, meal.h2, 'h2', m.x + colDoi + colH1, y);
-      // ghi chú
-      cx.fillStyle = MUT; cx.font = '11px Arial'; cx.textAlign = 'left';
-      wrapText(cx, meal.notes.join(', '), m.x + colDoi+colH1+colH2 + 6, y + 14, colNote - 12, 14, 4);
-      cx.textAlign = 'center';
-    }
-  });
-
-  function mealKeyOf(name){ return name==='SÁNG'?'sang':name==='TRƯA'?'trua':'toi'; }
-  function drawVal(cx, rec, kind, x, y){
+  function wrap(text, x, y, maxW, color, font){
+    if(!text) return;
+    cx.font=font; cx.fillStyle=color; cx.textAlign='left';
+    const words=String(text).split(' '); let line='', yy=y;
+    for(const w of words){ const t=line?line+' '+w:w; if(cx.measureText(t).width>maxW && line){ cx.fillText(line,x,yy); line=w; yy+=lh; } else line=t; }
+    if(line) cx.fillText(line,x,yy);
+  }
+  function val(rec, kind, cx0, cw, y, rh){
     if(!rec) return;
     const a = assess(rec.mmol, kind);
-    cx.fillStyle = (a.cls==='ok') ? BLK : RED;
-    cx.font = '700 15px Arial';
-    cx.fillText(fmt(rec.mmol), x + (kind==='doi'?colDoi:kind==='h1'?colH1:colH2)/2, y + rowH/2);
-  }
-  function wrapText(cx, text, x, y, maxW, lh, maxLines){
-    if(!text) return;
-    const words = text.split(' ');
-    let line = '', lines = [];
-    for(const w of words){
-      const test = line ? line+' '+w : w;
-      if(cx.measureText(test).width > maxW && line){ lines.push(line); line = w; }
-      else line = test;
-    }
-    if(line) lines.push(line);
-    lines.slice(0, maxLines).forEach((ln, k)=>{
-      let t = ln;
-      if(k===maxLines-1 && lines.length>maxLines) t = ln.replace(/.{0,2}$/,'…');
-      cx.fillText(t, x, y + k*lh);
-    });
+    cx.fillStyle = a.cls==='ok' ? BLK : RED;
+    cx.font='700 14px Arial'; cx.textAlign='center';
+    cx.fillText(fmt(rec.mmol), cx0+cw/2, y+rh/2);
   }
 
-  // ----- lưới -----
-  cx.strokeStyle = LINE; cx.lineWidth = 1;
-  // viền ngoài
-  cx.strokeRect(0.5, top+0.5, W-1, headerH + rowH*dates.length);
-  // dọc: ngày | (mỗi bữa: doi h1 h2 note)
-  const xs = [colDate];
+  // body
+  let y = top + headerH;
+  dates.forEach((d,i)=>{
+    const rh = heights[i];
+    const data = byDate[d];
+    const dd = d ? d.split('-').reverse().slice(0,2).join('/') : '';
+    cx.fillStyle=BLK; cx.font='700 12px Arial'; cx.textAlign='center';
+    cx.fillText(dd, colDate/2, y+rh/2);
+
+    for(let mi=0; mi<3; mi++){
+      const x = mealX(mi);
+      const cell = data[mealKeys[mi]];
+      val(cell.doi, 'doi', x, cDoi, y, rh);
+      // nhật ký = ghi chú bữa
+      wrap(cell.notes.join(' • '), x+cDoi+5, y+12, cDiary-10, BLK, '11px Arial');
+      val(cell.h1, 'h1', x+cDoi+cDiary, cH1, y, rh);
+      val(cell.h2, 'h2', x+cDoi+cDiary+cH1, cH2, y, rh);
+    }
+    // ghi chú chung để trống
+    y += rh;
+  });
+
+  // lưới
+  cx.strokeStyle=LINE; cx.lineWidth=1;
+  const bottom = top + headerH + bodyH;
+  cx.strokeRect(0.5, top+0.5, W-1, headerH+bodyH);
+  const xs=[colDate];
   for(let mi=0; mi<3; mi++){
-    const base = colDate + mealW*mi;
-    xs.push(base+colDoi, base+colDoi+colH1, base+colDoi+colH1+colH2, base+mealW);
+    const b=mealX(mi);
+    xs.push(b+cDoi, b+cDoi+cDiary, b+cDoi+cDiary+cH1, b+mealW);
   }
   cx.beginPath();
-  for(const x of xs){ cx.moveTo(x+0.5, top); cx.lineTo(x+0.5, top + headerH + rowH*dates.length); }
-  // ngang
+  for(const x of xs){ cx.moveTo(x+0.5, top); cx.lineTo(x+0.5, bottom); }
   cx.moveTo(0, top+headerH+0.5); cx.lineTo(W, top+headerH+0.5);
-  for(let i=1;i<=dates.length;i++){ const y=top+headerH+rowH*i; cx.moveTo(0,y+0.5); cx.lineTo(W,y+0.5); }
-  // vạch ngăn header 2 hàng
-  cx.moveTo(colDate, top+headerH/2+0.5); cx.lineTo(W, top+headerH/2+0.5);
+  let yy=top+headerH;
+  for(const rh of heights){ yy+=rh; cx.moveTo(0,yy+0.5); cx.lineTo(W,yy+0.5); }
+  cx.moveTo(colDate, top+headerH/2+0.5); cx.lineTo(colDate+mealW*3, top+headerH/2+0.5);
   cx.stroke();
 
-  // ----- chú thích chân -----
-  cx.fillStyle = MUT; cx.font = '10px Arial'; cx.textAlign = 'left';
-  const fy = top + headerH + rowH*dates.length + 16;
-  cx.fillText('Mục tiêu (mmol/L): Đói <5,3 — Sau ăn 1h <7,8 — Sau ăn 2h <6,7.', padX, fy);
-  cx.fillStyle = RED;
-  cx.fillText('Số màu đỏ: vượt mục tiêu.', padX, fy + 16);
+  // chân
+  cx.textAlign='left';
+  cx.fillStyle=MUT; cx.font='10px Arial';
+  cx.fillText('Mục tiêu (mmol/L): Lúc đói <5,3 — Sau ăn 1h <7,8 — Sau ăn 2h <6,7.', 8, bottom+14);
+  cx.fillStyle=RED;
+  cx.fillText('Số màu đỏ: vượt mục tiêu.', 8, bottom+29);
 
-  // ----- tải -----
   cv.toBlob(blob=>{
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    const today = todayStr().replace(/-/g,'');
-    a.href = url; a.download = 'bang-duong-huyet-'+today+'.png'; a.click();
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url; a.download='bang-duong-huyet-'+todayStr().replace(/-/g,'')+'.png'; a.click();
     URL.revokeObjectURL(url);
   }, 'image/png');
 });
