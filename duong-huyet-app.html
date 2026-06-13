@@ -135,10 +135,11 @@
   .seg{display:flex;gap:8px}
   .seg button{
     flex:1 1 0;min-width:0;background:var(--panel2);border:1px solid var(--line);
-    color:var(--muted);padding:11px 6px;border-radius:14px;font-size:13px;cursor:pointer;
-    font-family:inherit;white-space:nowrap;transition:background .4s ease,color .2s,border-color .4s;
+    color:var(--muted);padding:11px 6px;border-radius:14px;font-size:13px;cursor:pointer;font-weight:600;
+    font-family:inherit;white-space:nowrap;transition:background .2s ease,color .2s ease,border-color .2s ease;
+    -webkit-tap-highlight-color:transparent;user-select:none;
   }
-  .seg button.active{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600}
+  .seg button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
 
   .verdict{border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-top:4px}
   .verdict .ic{font-size:22px;line-height:1}
@@ -162,21 +163,6 @@
   .stat .n{font-size:24px;font-weight:700}
   .stat .l{font-size:12px;color:var(--muted);margin-top:2px}
 
-  /* Carousel tổng quan */
-  .slide-dots{display:flex;gap:6px;align-items:center}
-  .slide-dots .snav{background:var(--panel2);border:none;color:var(--muted);cursor:pointer;width:26px;height:26px;border-radius:50%;font-size:16px;line-height:1;display:flex;align-items:center;justify-content:center;padding:0}
-  .slide-dots .snav:hover{background:var(--line);color:var(--txt)}
-  .slide-dots .dot{width:8px;height:8px;border-radius:50%;border:none;background:var(--line);cursor:pointer;padding:0;transition:background .2s,width .2s}
-  .slide-dots .dot.active{background:var(--accent);width:18px;border-radius:5px}
-  .slides{display:flex;overflow:hidden;touch-action:pan-y;width:100%}
-  .slide{flex:0 0 100%;width:100%;box-sizing:border-box}
-  .chart-wrap{display:flex;align-items:center;justify-content:center;gap:24px;padding:10px 0}
-  .chart-wrap canvas{flex:none;display:block}
-  .chart-legend{display:flex;flex-direction:column;gap:12px;flex:none}
-  .chart-legend .lg{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px}
-  .chart-legend .lg b{color:var(--txt);margin-left:2px}
-  .chart-legend .lg-dot{width:11px;height:11px;border-radius:50%;display:inline-block}
-
   .pill{display:inline-block;padding:3px 11px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
   .p-ok{background:var(--okbg);color:var(--ok)}
   .p-warn{background:var(--warnbg);color:var(--warn)}
@@ -184,7 +170,7 @@
 
   /* Lịch sử dạng lưới */
   .hist{font-size:13px}
-  .hhead{display:grid;grid-template-columns:1.4fr 1fr 1.2fr 1fr;gap:8px;padding:0 14px 8px;
+  .hhead{display:grid;grid-template-columns:.9fr .9fr 1fr .9fr 1.3fr;gap:8px;padding:0 14px 8px;
     color:var(--muted);font-size:12px;border-bottom:1px solid var(--line)}
   .hrow{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
   .hrow:last-child{border-bottom:none}
@@ -193,19 +179,24 @@
   .act-edit{background:var(--accent)}
   .act-del{background:var(--high)}
   .hrow-front{position:relative;z-index:1;background:var(--panel);display:grid;
-    grid-template-columns:1.4fr 1fr 1.2fr 1fr;gap:8px;align-items:center;padding:11px 14px;
+    grid-template-columns:.9fr .9fr 1fr .9fr 1.3fr;gap:8px;align-items:center;padding:11px 14px;
     transition:transform .25s ease}
   .hc-when .d{font-weight:500}
   .hc-when .t{color:var(--muted);margin-left:5px}
   .hc-val{display:flex;align-items:baseline;gap:6px;white-space:nowrap}
   .hc-val .mgsub{color:var(--muted);font-size:11px}
+  .hc-note{color:var(--muted);font-size:12px;white-space:nowrap;overflow-x:auto;
+    -webkit-overflow-scrolling:touch;scrollbar-width:thin}
+  .hc-note::-webkit-scrollbar{height:4px}
+  .hc-note::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px}
   .mval{font-weight:700;font-size:15px}
   .mval.hi{color:var(--high)}
-  /* nút sửa/xoá inline cho web (hover) */
-  .hrow-front{cursor:default}
+  .hrow-front{cursor:pointer}
   .empty{color:var(--muted);text-align:center;padding:30px 0;font-size:14px}
 
-  /* Web: hover vào dòng thì lộ nút (trượt nhẹ) */
+  /* Bấm vào dòng (mọi thiết bị) -> trượt lộ nút */
+  .hrow.open .hrow-front{transform:translateX(-104px)}
+  /* Web: hover vào dòng cũng lộ nút */
   @media(hover:hover) and (pointer:fine){
     .hrow:hover .hrow-front{transform:translateX(-104px)}
   }
@@ -220,8 +211,9 @@
     .seg .seg-h2{flex:1 1 100%}
     .verdict .txtwrap{font-size:15px}
     .stats{grid-template-columns:repeat(2,1fr)}
-    .hhead{grid-template-columns:1.2fr .9fr 1fr .9fr;font-size:11px;padding:0 12px 8px}
-    .hrow-front{grid-template-columns:1.2fr .9fr 1fr .9fr;padding:11px 12px;font-size:12px}
+    .hhead{grid-template-columns:1fr .9fr 1fr .9fr;font-size:11px;padding:0 12px 8px}
+    .hrow-front{grid-template-columns:1fr .9fr 1fr .9fr;padding:11px 12px;font-size:12px}
+    .hhead div:nth-child(5),.hc-note{display:none}
     .hc-when{display:flex;flex-direction:column;line-height:1.3}
     .hc-when .t{margin-left:0;font-size:11px}
     .hc-val{flex-direction:column;align-items:flex-start;gap:1px;line-height:1.2}
@@ -274,33 +266,12 @@
 
   <!-- THỐNG KÊ -->
   <div class="card" id="statsCard" style="display:none">
-    <div class="card-head">
-      <h2 style="margin-bottom:0">Tổng quan</h2>
-      <div class="slide-dots">
-        <button class="snav" id="slPrev" aria-label="Trước">‹</button>
-        <button class="dot active" data-s="0" aria-label="Số liệu"></button>
-        <button class="dot" data-s="1" aria-label="Biểu đồ"></button>
-        <button class="snav" id="slNext" aria-label="Sau">›</button>
-      </div>
-    </div>
-    <div class="slides" id="statsSlides">
-      <div class="slide">
-        <div class="stats">
-          <div class="stat"><div class="n" id="stTotal">0</div><div class="l">Lần đo</div></div>
-          <div class="stat"><div class="n" id="stOk" style="color:var(--ok)">0</div><div class="l">Đạt mục tiêu</div></div>
-          <div class="stat"><div class="n" id="stHigh" style="color:var(--high)">0</div><div class="l">Vượt mục tiêu</div></div>
-          <div class="stat"><div class="n" id="stAvg">0</div><div class="l">TB mmol/L</div></div>
-        </div>
-      </div>
-      <div class="slide">
-        <div class="chart-wrap">
-          <canvas id="donut" width="320" height="320" style="width:150px;height:150px"></canvas>
-          <div class="chart-legend">
-            <div class="lg"><span class="lg-dot" style="background:var(--ok)"></span> Đạt mục tiêu <b id="lgOk">0</b></div>
-            <div class="lg"><span class="lg-dot" style="background:var(--high)"></span> Vượt mục tiêu <b id="lgHigh">0</b></div>
-          </div>
-        </div>
-      </div>
+    <h2>Tổng quan</h2>
+    <div class="stats">
+      <div class="stat"><div class="n" id="stTotal">0</div><div class="l">Lần đo</div></div>
+      <div class="stat"><div class="n" id="stOk" style="color:var(--ok)">0</div><div class="l">Đạt mục tiêu</div></div>
+      <div class="stat"><div class="n" id="stHigh" style="color:var(--high)">0</div><div class="l">Vượt mục tiêu</div></div>
+      <div class="stat"><div class="n" id="stAvg">0</div><div class="l">TB mmol/L</div></div>
     </div>
   </div>
 
@@ -654,7 +625,6 @@ function render(){
     $('stOk').textContent = ok;
     $('stHigh').textContent = high;
     $('stAvg').textContent = fmt(avg);
-    requestAnimationFrame(()=> drawDonut(ok, high));
   } else $('statsCard').style.display='none';
 
   // history
@@ -663,6 +633,7 @@ function render(){
   let rows = records.map(r=>{
     const a = assess(r.mmol, r.kind);
     const d = r.date ? r.date.split('-').reverse().slice(0,2).join('/') : '';
+    const note = r.note ? escapeHtml(r.note) : '<span style="opacity:.35">—</span>';
     return `<div class="hrow" data-id="${r.id}">
       <div class="hrow-actions">
         <button class="act-edit" data-id="${r.id}" aria-label="Sửa">✎</button>
@@ -673,11 +644,12 @@ function render(){
         <div class="hc hc-kind">${TARGETS[r.kind].label}</div>
         <div class="hc hc-val"><span class="mval ${a.cls==='ok'?'':'hi'}">${fmt(r.mmol)}</span><span class="mgsub">${r.mg} mg/dL</span></div>
         <div class="hc hc-eval"><span class="pill p-${a.cls}">${a.txt}</span></div>
+        <div class="hc hc-note">${note}</div>
       </div>
     </div>`;
   }).join('');
   h.innerHTML = `<div class="hist">
-    <div class="hhead"><div>Ngày</div><div>Thời điểm</div><div>mmol/L</div><div>Đánh giá</div></div>
+    <div class="hhead"><div>Ngày</div><div>Thời điểm</div><div>mmol/L</div><div>Đánh giá</div><div>Ghi chú</div></div>
     ${rows}
   </div>`;
 
@@ -693,32 +665,40 @@ function render(){
     await dbDelete(id);
     render();
   }
-  h.querySelectorAll('.act-edit').forEach(b=> b.onclick = ()=> doEdit(b.dataset.id));
-  h.querySelectorAll('.act-del').forEach(b=> b.onclick = ()=> doDel(b.dataset.id));
+  h.querySelectorAll('.act-edit').forEach(b=> b.onclick = (e)=>{ e.stopPropagation(); doEdit(b.dataset.id); });
+  h.querySelectorAll('.act-del').forEach(b=> b.onclick = (e)=>{ e.stopPropagation(); doDel(b.dataset.id); });
 
-  // swipe trên mobile: vuốt trái để lộ 2 nút
-  if(matchMedia('(max-width:560px)').matches){
-    h.querySelectorAll('.hrow').forEach(row=>{
-      const front = row.querySelector('.hrow-front');
-      let sx=0, dx=0, drag=false, open=false;
-      const OPEN=-104;
-      front.addEventListener('touchstart', e=>{ sx=e.touches[0].clientX; drag=true; }, {passive:true});
-      front.addEventListener('touchmove', e=>{
-        if(!drag) return;
-        dx = e.touches[0].clientX - sx + (open?OPEN:0);
-        dx = Math.max(OPEN, Math.min(0, dx));
-        front.style.transition='none';
-        front.style.transform=`translateX(${dx}px)`;
-      }, {passive:true});
-      front.addEventListener('touchend', ()=>{
-        drag=false; front.style.transition='';
-        open = dx < OPEN/2;
-        front.style.transform=`translateX(${open?OPEN:0}px)`;
-        // đóng các dòng khác
-        h.querySelectorAll('.hrow-front').forEach(f=>{ if(f!==front){ f.style.transform='translateX(0)'; } });
-      });
-    });
+  function closeAll(except){
+    h.querySelectorAll('.hrow').forEach(r=>{ if(r!==except) r.classList.remove('open'); });
   }
+
+  // Bấm vào dòng -> toggle trượt (mọi thiết bị)
+  h.querySelectorAll('.hrow').forEach(row=>{
+    const front = row.querySelector('.hrow-front');
+    front.addEventListener('click', ()=>{
+      const willOpen = !row.classList.contains('open');
+      closeAll(row);
+      row.classList.toggle('open', willOpen);
+    });
+  });
+
+  // Swipe trên cảm ứng: vuốt trái mở, vuốt phải đóng
+  h.querySelectorAll('.hrow').forEach(row=>{
+    const front = row.querySelector('.hrow-front');
+    let sx=0, dx=0, drag=false, moved=false;
+    front.addEventListener('touchstart', e=>{ sx=e.touches[0].clientX; drag=true; moved=false; }, {passive:true});
+    front.addEventListener('touchmove', e=>{
+      if(!drag) return;
+      dx = e.touches[0].clientX - sx;
+      if(Math.abs(dx)>6) moved=true;
+    }, {passive:true});
+    front.addEventListener('touchend', ()=>{
+      drag=false;
+      if(!moved) return;            // chạm nhẹ -> để 'click' xử lý toggle
+      if(dx < -30){ closeAll(row); row.classList.add('open'); }
+      else if(dx > 30){ row.classList.remove('open'); }
+    });
+  });
 }
 function escapeHtml(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 
@@ -968,84 +948,6 @@ $('tmStage').addEventListener('wheel', e=>{ e.preventDefault(); tmZoom(e.deltaY<
 // nền (ngoài ảnh) hoặc Esc để đóng
 $('tableModal').addEventListener('click', e=>{ if(e.target.id==='tableModal' || e.target.id==='tmStage') closeTable(); });
 window.addEventListener('keydown', e=>{ if(e.key==='Escape') closeTable(); });
-
-// ===== Biểu đồ tròn (donut) vẽ bằng canvas thuần =====
-let lastDonut = {ok:0, high:0};
-function drawDonut(ok, high){
-  lastDonut = {ok, high};
-  $('lgOk').textContent = ok;
-  $('lgHigh').textContent = high;
-  const cv = $('donut'); if(!cv || !cv.getContext) return;
-  const ctx = cv.getContext('2d');
-  const W = cv.width, H = cv.height;       // 320 x 320 (cố định)
-  const cx = W/2, cy = H/2, R = 130, sw = 46;
-  const css = getComputedStyle(document.documentElement);
-  const okCol = (css.getPropertyValue('--ok').trim()) || '#0a7256';
-  const hiCol = (css.getPropertyValue('--high').trim()) || '#c12f2f';
-  const lineCol = (css.getPropertyValue('--line').trim()) || '#e5e9ee';
-  const txtCol = (css.getPropertyValue('--txt').trim()) || '#1a2730';
-  const mutedCol = (css.getPropertyValue('--muted').trim()) || '#6b7d89';
-  const total = ok + high;
-  const pct = total ? Math.round(ok/total*100) : 0;
-
-  ctx.clearRect(0,0,W,H);
-
-  function arc(start, end, color){
-    ctx.beginPath();
-    ctx.arc(cx, cy, R, start, end);
-    ctx.strokeStyle = color;
-    ctx.lineWidth = sw;
-    ctx.stroke();
-  }
-
-  const TAU = Math.PI*2;
-  const startA = -Math.PI/2;
-  if(total === 0){
-    arc(0, TAU, lineCol);
-  } else {
-    const okEnd = startA + TAU*(ok/total);
-    arc(okEnd, startA + TAU, hiCol);   // phần vượt (đỏ)
-    arc(startA, okEnd, okCol);         // phần đạt (xanh)
-  }
-
-  // chữ giữa
-  ctx.fillStyle = txtCol;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.font = '700 56px system-ui, -apple-system, sans-serif';
-  ctx.fillText(total ? pct+'%' : '–', cx, cy-12);
-  ctx.fillStyle = mutedCol;
-  ctx.font = '400 26px system-ui, -apple-system, sans-serif';
-  ctx.fillText(total ? 'đạt mục tiêu' : 'chưa có', cx, cy+30);
-}
-
-// ===== Điều khiển slide tổng quan =====
-let goSlide = function(){};
-(function(){
-  let cur = 0;
-  function go(i){
-    cur = Math.max(0, Math.min(1, i));
-    const sl = $('statsSlides');
-    if(sl) sl.style.transform = `translateX(${-cur*100}%)`;
-    document.querySelectorAll('.slide-dots .dot').forEach((d,idx)=> d.classList.toggle('active', idx===cur));
-    if(cur===1) drawDonut(lastDonut.ok, lastDonut.high);   // vẽ lại khi xem biểu đồ
-  }
-  goSlide = go;
-  document.querySelectorAll('.slide-dots .dot').forEach(d=> d.addEventListener('click', ()=> go(+d.dataset.s)));
-  const prev=$('slPrev'), next=$('slNext');
-  if(prev) prev.addEventListener('click', ()=> go(cur-1));
-  if(next) next.addEventListener('click', ()=> go(cur+1));
-  const sl = $('statsSlides');
-  if(sl){ sl.style.transition='transform .3s ease'; }
-  // vuốt ngang
-  let sx=0, sdx=0, drag=false;
-  sl && sl.addEventListener('touchstart', e=>{ sx=e.touches[0].clientX; drag=true; sdx=0; }, {passive:true});
-  sl && sl.addEventListener('touchmove', e=>{ if(drag) sdx=e.touches[0].clientX - sx; }, {passive:true});
-  sl && sl.addEventListener('touchend', ()=>{
-    if(!drag) return; drag=false;
-    if(sdx < -40) go(cur+1); else if(sdx > 40) go(cur-1);
-  });
-})();
 
 // ===== Xác nhận xoá (modal) =====
 function confirmDelete(label){
