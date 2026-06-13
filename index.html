@@ -49,6 +49,37 @@
   @keyframes msgIn{0%{transform:translateY(16px);opacity:0}100%{transform:translateY(0);opacity:1}}
   @media(prefers-reduced-motion:reduce){ #pop .emo,#pop .msg{animation:none} }
 
+  /* Modal xác nhận xoá */
+  #confirmModal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:62;
+    background:rgba(20,35,48,.45);backdrop-filter:blur(3px);padding:18px}
+  #confirmModal.show{display:flex;animation:fadein .2s ease}
+  #confirmModal .cf-box{background:var(--panel);border-radius:22px;padding:26px 24px;width:100%;max-width:340px;
+    text-align:center;box-shadow:0 18px 50px rgba(20,40,55,.3);animation:pop .3s cubic-bezier(.2,1.3,.5,1)}
+  @keyframes pop{0%{transform:scale(.8);opacity:0}100%{transform:scale(1);opacity:1}}
+  #confirmModal .cf-emo{font-size:40px;margin-bottom:8px}
+  #confirmModal .cf-title{font-size:17px;font-weight:700;color:var(--txt);margin-bottom:4px}
+  #confirmModal .cf-sub{font-size:13px;color:var(--muted);margin-bottom:20px}
+  #confirmModal .cf-acts{display:flex;gap:10px}
+  #confirmModal .cf-acts button{flex:1;padding:12px;border-radius:13px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;border:none}
+  #confirmModal .cf-cancel{background:var(--panel2);color:var(--txt)}
+  #confirmModal .cf-ok{background:var(--high);color:#fff}
+  #confirmModal .cf-ok:active,#confirmModal .cf-cancel:active{transform:scale(.97)}
+
+  /* Modal chỉnh sửa */
+  #editModal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:61;
+    background:rgba(20,35,48,.45);backdrop-filter:blur(3px);padding:18px}
+  #editModal.show{display:flex;animation:fadein .2s ease}
+  #editModal .em-box{background:var(--panel);border-radius:22px;padding:24px;width:100%;max-width:380px;
+    box-shadow:0 18px 50px rgba(20,40,55,.3);animation:pop .3s cubic-bezier(.2,1.3,.5,1)}
+  #editModal .em-head{font-size:17px;font-weight:700;display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+  #editModal .em-x{background:none;border:none;font-size:18px;color:var(--muted);cursor:pointer;padding:2px 6px;border-radius:8px}
+  #editModal .em-lbl{display:block;font-size:13px;color:var(--muted);margin-bottom:7px}
+  #editModal .em-acts{display:flex;gap:10px}
+  #editModal .em-acts button{flex:1;padding:13px;border-radius:13px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;border:none}
+  #editModal .em-cancel{background:var(--panel2);color:var(--txt)}
+  #editModal .em-ok{background:var(--accent);color:#fff}
+  #editModal .em-ok:active,#editModal .em-cancel:active{transform:scale(.97)}
+
   /* Modal xem bảng - full màn hình, zoom/pan */
   #tableModal{position:fixed;inset:0;display:none;z-index:55;background:rgba(15,25,35,.92);
     flex-direction:column;touch-action:none;user-select:none}
@@ -96,19 +127,19 @@
   .big-note::placeholder{font-size:15px}
   .field-lg label{font-size:14px;margin-bottom:9px}
 
-  .seg{display:flex;gap:8px;flex-wrap:wrap}
+  .seg{display:flex;gap:8px}
   .seg button{
-    flex:1;min-width:100px;background:var(--panel2);border:1px solid var(--line);
-    color:var(--muted);padding:11px 8px;border-radius:14px;font-size:13px;cursor:pointer;
-    font-family:inherit;transition:background .4s ease,color .2s,border-color .4s;
+    flex:1 1 0;min-width:0;background:var(--panel2);border:1px solid var(--line);
+    color:var(--muted);padding:11px 6px;border-radius:14px;font-size:13px;cursor:pointer;
+    font-family:inherit;white-space:nowrap;transition:background .4s ease,color .2s,border-color .4s;
   }
   .seg button.active{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600}
 
   .verdict{border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-top:4px}
   .verdict .ic{font-size:22px;line-height:1}
-  .verdict .txtwrap{flex:1;font-size:16px;font-weight:600}
+  .verdict .txtwrap{flex:1;min-width:0;font-size:16px;font-weight:600}
   .verdict .txtwrap small{display:block;font-weight:400;color:var(--muted);font-size:12px;margin-top:2px}
-  .verdict .mmolval{font-size:28px;font-weight:700;letter-spacing:-.5px;line-height:1}
+  .verdict .mmolval{font-size:28px;font-weight:700;letter-spacing:-.5px;line-height:1;white-space:nowrap}
   .verdict .mmolval span{font-size:13px;font-weight:400;color:var(--muted);margin-left:3px}
   .v-ok{background:var(--okbg);color:var(--ok)}
   .v-warn{background:var(--warnbg);color:var(--warn)}
@@ -126,31 +157,60 @@
   .stat .n{font-size:24px;font-weight:700}
   .stat .l{font-size:12px;color:var(--muted);margin-top:2px}
 
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  th{text-align:left;color:var(--muted);font-weight:500;padding:8px 6px;border-bottom:1px solid var(--line);font-size:12px}
-  td{padding:10px 6px;border-bottom:1px solid var(--line);vertical-align:top}
-  tr:last-child td{border-bottom:none}
-  .pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600}
+  .pill{display:inline-block;padding:3px 11px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
   .p-ok{background:var(--okbg);color:var(--ok)}
   .p-warn{background:var(--warnbg);color:var(--warn)}
   .p-high{background:var(--highbg);color:var(--high)}
+
+  /* Lịch sử dạng lưới */
+  .hist{font-size:13px}
+  .hhead{display:grid;grid-template-columns:1.4fr 1fr 1.2fr 1fr;gap:8px;padding:0 14px 8px;
+    color:var(--muted);font-size:12px;border-bottom:1px solid var(--line)}
+  .hrow{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+  .hrow:last-child{border-bottom:none}
+  .hrow-actions{position:absolute;top:0;right:0;height:100%;display:flex;align-items:stretch}
+  .hrow-actions button{border:none;cursor:pointer;width:52px;font-size:16px;color:#fff}
+  .act-edit{background:var(--accent)}
+  .act-del{background:var(--high)}
+  .hrow-front{position:relative;z-index:1;background:var(--panel);display:grid;
+    grid-template-columns:1.4fr 1fr 1.2fr 1fr;gap:8px;align-items:center;padding:11px 14px;
+    transition:transform .25s ease}
+  .hc-when .d{font-weight:500}
+  .hc-when .t{color:var(--muted);margin-left:5px}
+  .hc-val{display:flex;align-items:baseline;gap:6px;white-space:nowrap}
+  .hc-val .mgsub{color:var(--muted);font-size:11px}
   .mval{font-weight:700;font-size:15px}
   .mval.hi{color:var(--high)}
-  .del{color:var(--muted);cursor:pointer;background:none;border:none;font-size:15px;padding:2px 6px}
-  .del:hover{color:var(--high)}
-  .edit{color:var(--muted);cursor:pointer;background:none;border:none;font-size:14px;padding:2px 6px}
-  .edit:hover{color:var(--accent)}
-  .editbar{display:none;align-items:center;gap:10px;background:var(--panel2);border:1px solid var(--accent);
-    border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:13px;color:var(--txt)}
-  .editbar.on{display:flex}
-  .editbar .x{margin-left:auto;background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;text-decoration:underline}
+  .hist-ed{color:var(--muted);font-size:10px;margin-left:4px}
+  /* nút sửa/xoá inline cho web (hover) */
+  .hrow-front{cursor:default}
   .empty{color:var(--muted);text-align:center;padding:30px 0;font-size:14px}
-  .toolbar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
-  .toolbar .btn{width:auto;padding:9px 16px;font-size:13px}
-  .note-cell{color:var(--muted);max-width:160px}
+
+  /* Web: hover vào dòng thì lộ nút (trượt nhẹ) */
+  @media(hover:hover) and (pointer:fine){
+    .hrow:hover .hrow-front{transform:translateX(-104px)}
+  }
   @media(max-width:560px){
+    body{padding:16px 12px 50px}
     .hide-sm{display:none}
     .verdict .mmolval{font-size:24px}
+    h1{font-size:21px}
+    .card{padding:18px 16px}
+    .seg button{font-size:12px;padding:11px 4px}
+    .verdict .txtwrap{font-size:15px}
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .hhead{grid-template-columns:1.2fr .9fr 1fr .9fr;font-size:11px;padding:0 12px 8px}
+    .hrow-front{grid-template-columns:1.2fr .9fr 1fr .9fr;padding:11px 12px;font-size:12px}
+    .hc-when{display:flex;flex-direction:column;line-height:1.3}
+    .hc-when .t{margin-left:0;font-size:11px}
+    .hc-val{flex-direction:column;align-items:flex-start;gap:1px;line-height:1.2}
+    .hc-val .mgsub{font-size:10px}
+    .mval{font-size:14px}
+    .pill{padding:2px 8px;font-size:10px}
+  }
+  @media(max-width:380px){
+    .seg button{font-size:11px;letter-spacing:-.2px}
+    h1{font-size:19px}
   }
 </style>
 </head>
@@ -165,11 +225,6 @@
   <!-- NHẬP -->
   <div class="card">
     <h2 id="formTitle">Nhập kết quả đo</h2>
-
-    <div class="editbar" id="editbar">
-      <span>Đang sửa bản ghi cũ</span>
-      <button class="x" id="cancelEdit">Huỷ</button>
-    </div>
 
     <label>Thời điểm đo</label>
     <div class="seg" id="seg" style="margin-bottom:6px">
@@ -223,6 +278,37 @@
   <div class="msg" id="popMsg"></div>
 </div>
 
+<div id="editModal" aria-hidden="true">
+  <div class="em-box">
+    <div class="em-head">Sửa kết quả đo <button class="em-x" id="emClose" aria-label="Đóng">✕</button></div>
+    <label class="em-lbl">Thời điểm đo</label>
+    <div class="seg" id="emSeg" style="margin-bottom:16px">
+      <button data-k="doi">Lúc đói</button>
+      <button data-k="h1">Sau ăn 1h</button>
+      <button data-k="h2">Sau ăn 2h</button>
+    </div>
+    <label class="em-lbl">Đường huyết (mg/dL)</label>
+    <input type="number" id="emMg" inputmode="numeric" min="20" max="600" step="1" autocomplete="off"
+           style="margin-bottom:16px;font-size:22px;font-weight:700;text-align:center">
+    <label class="em-lbl">Ghi chú</label>
+    <textarea id="emNote" style="margin-bottom:18px;min-height:54px"></textarea>
+    <div class="em-acts">
+      <button class="em-cancel" id="emCancel">Huỷ</button>
+      <button class="em-ok" id="emSave">Lưu thay đổi</button>
+    </div>
+  </div>
+</div>
+<div id="confirmModal" aria-hidden="true">
+  <div class="cf-box">
+    <div class="cf-emo">🗑️</div>
+    <div class="cf-title">Xoá bản ghi này?</div>
+    <div class="cf-sub" id="cfSub"></div>
+    <div class="cf-acts">
+      <button class="cf-cancel" id="cfCancel">Huỷ</button>
+      <button class="cf-ok" id="cfOk">Xoá</button>
+    </div>
+  </div>
+</div>
 <div id="tableModal" aria-hidden="true">
   <div class="tm-bar">
     <span class="ttl">Bảng theo dõi</span>
@@ -276,7 +362,6 @@ function assess(mmol, kind){
 let records = [];
 let curKind = "doi";
 let userPicked = false; // người dùng tự chọn thì không tự đoán đè lên
-let editingId = null;   // id bản ghi đang sửa (null = thêm mới)
 const $ = id => document.getElementById(id);
 
 // Tự đoán thời điểm đo tiếp theo dựa trên lần đo gần nhất trong ngày
@@ -446,33 +531,19 @@ $('save').addEventListener('click', async ()=>{
   $('save').disabled = true;
   const verdictCls = assess(toMmol(mg), curKind).cls;  // mức để chọn lời nhắn
 
-  if(editingId !== null){
-    const patch = {
-      mg: Math.round(mg),
-      mmol: Math.round(toMmol(mg)*10)/10,
-      kind: curKind,
-      note: $('note').value.trim(),
-      edited: true,
-    };
-    const r = records.find(x=> x.id === editingId);
-    if(r) Object.assign(r, patch);
-    await dbUpdate(editingId, patch);
-    exitEdit();
-  } else {
-    const rec = {
-      id: (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())),
-      mg: Math.round(mg),
-      mmol: Math.round(toMmol(mg)*10)/10,
-      kind: curKind,
-      date: todayStr(),
-      time: nowTime(),
-      note: $('note').value.trim(),
-      edited: false,
-      created_at: new Date().toISOString(),
-    };
-    const saved = await dbInsert(rec);
-    records.unshift(saved || rec);
-  }
+  const rec = {
+    id: (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())),
+    mg: Math.round(mg),
+    mmol: Math.round(toMmol(mg)*10)/10,
+    kind: curKind,
+    date: todayStr(),
+    time: nowTime(),
+    note: $('note').value.trim(),
+    edited: false,
+    created_at: new Date().toISOString(),
+  };
+  const saved = await dbInsert(rec);
+  records.unshift(saved || rec);
 
   // Giữ màu nền trạng thái cho popup; reset sau khi popup tắt
   showPopup(verdictCls);
@@ -487,34 +558,44 @@ $('save').addEventListener('click', async ()=>{
   document.body.classList.add('state-'+verdictCls);
 });
 
-// ===== Sửa bản ghi cũ =====
+// ===== Sửa bản ghi cũ (popup) =====
+let emEditId = null, emKind = 'doi';
 function startEdit(id){
   const r = records.find(x=> String(x.id) === String(id));
   if(!r) return;
-  editingId = r.id;
-  curKind = r.kind; userPicked = true;
-  [...$('seg').children].forEach(x=> x.classList.toggle('active', x.dataset.k===r.kind));
-  $('hint').textContent = '';
-  $('mg').value = r.mg;
-  $('note').value = r.note || '';
-  $('formTitle').textContent = 'Sửa kết quả đo';
-  $('editbar').classList.add('on');
-  $('save').textContent = 'Lưu thay đổi';
-  updateLive();
-  document.querySelector('.card').scrollIntoView({behavior:'smooth', block:'start'});
+  emEditId = r.id;
+  emKind = r.kind;
+  [...$('emSeg').children].forEach(x=> x.classList.toggle('active', x.dataset.k===r.kind));
+  $('emMg').value = r.mg;
+  $('emNote').value = r.note || '';
+  $('editModal').classList.add('show');
 }
-function exitEdit(){
-  editingId = null;
-  $('formTitle').textContent = 'Nhập kết quả đo';
-  $('editbar').classList.remove('on');
-  $('save').textContent = 'Lưu vào dữ liệu';
-}
-$('cancelEdit').addEventListener('click', ()=>{
-  exitEdit();
-  $('mg').value=''; $('note').value='';
-  $('live').style.display='none'; $('save').disabled=true;
-  userPicked = false;
-  applySuggestion();
+function closeEdit(){ $('editModal').classList.remove('show'); emEditId=null; }
+
+// chọn thời điểm trong popup
+$('emSeg').addEventListener('click', e=>{
+  const b = e.target.closest('button'); if(!b) return;
+  [...$('emSeg').children].forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  emKind = b.dataset.k;
+});
+// chặn ký tự cho ô mg trong popup
+$('emMg').addEventListener('keydown', e=>{ if(['e','E','+','-','.',','].includes(e.key)) e.preventDefault(); });
+$('emMg').addEventListener('input', ()=>{ let v=$('emMg').value.replace(/[^\d]/g,'').slice(0,3); if($('emMg').value!==v) $('emMg').value=v; });
+
+$('emClose').addEventListener('click', closeEdit);
+$('emCancel').addEventListener('click', closeEdit);
+$('editModal').addEventListener('click', e=>{ if(e.target.id==='editModal') closeEdit(); });
+$('emSave').addEventListener('click', async ()=>{
+  const mg = parseInt($('emMg').value,10);
+  if(!mg || mg < MG_MIN || mg > MG_MAX){ $('emMg').focus(); return; }
+  const id = emEditId;
+  const patch = { mg:Math.round(mg), mmol:Math.round(toMmol(mg)*10)/10, kind:emKind, note:$('emNote').value.trim(), edited:true };
+  const r = records.find(x=> String(x.id)===String(id));
+  if(r) Object.assign(r, patch);
+  await dbUpdate(id, patch);
+  closeEdit();
+  render();
 });
 
 // ===== Render =====
@@ -537,29 +618,63 @@ function render(){
   let rows = records.map(r=>{
     const a = assess(r.mmol, r.kind);
     const d = r.date ? r.date.split('-').reverse().slice(0,2).join('/') : '';
-    return `<tr>
-      <td style="white-space:nowrap">${d} <span style="color:var(--muted)">- ${r.time||''}</span></td>
-      <td>${TARGETS[r.kind].label}</td>
-      <td style="white-space:nowrap"><span class="mval ${a.cls==='ok'?'':'hi'}">${fmt(r.mmol)}</span> <span style="color:var(--muted);font-size:11px">(${r.mg} mg/dL)</span></td>
-      <td><span class="pill p-${a.cls}">${a.txt}</span></td>
-      <td class="note-cell hide-sm">${r.note? escapeHtml(r.note):'<span style="opacity:.4">—</span>'}${r.edited?'<span style="color:var(--muted);font-size:10px"> (đã sửa)</span>':''}</td>
-      <td style="text-align:right;white-space:nowrap">
-        <button class="edit" data-id="${r.id}" title="Sửa">✎</button>
-        <button class="del" data-id="${r.id}" title="Xoá">✕</button>
-      </td>
-    </tr>`;
+    const ed = r.edited ? '<span class="hist-ed"> (đã sửa)</span>' : '';
+    return `<div class="hrow" data-id="${r.id}">
+      <div class="hrow-actions">
+        <button class="act-edit" data-id="${r.id}" aria-label="Sửa">✎</button>
+        <button class="act-del" data-id="${r.id}" aria-label="Xoá">✕</button>
+      </div>
+      <div class="hrow-front">
+        <div class="hc hc-when"><span class="d">${d}</span><span class="t">${r.time||''}</span></div>
+        <div class="hc hc-kind">${TARGETS[r.kind].label}</div>
+        <div class="hc hc-val"><span class="mval ${a.cls==='ok'?'':'hi'}">${fmt(r.mmol)}</span><span class="mgsub">${r.mg} mg/dL</span></div>
+        <div class="hc hc-eval"><span class="pill p-${a.cls}">${a.txt}</span>${ed}</div>
+      </div>
+    </div>`;
   }).join('');
-  h.innerHTML = `<table>
-    <thead><tr><th>Ngày</th><th>Thời điểm</th><th>mmol/L</th><th>Đánh giá</th><th class="hide-sm">Ghi chú</th><th></th></tr></thead>
-    <tbody>${rows}</tbody></table>`;
-  h.querySelectorAll('.edit').forEach(b=> b.onclick = ()=> startEdit(b.dataset.id));
-  h.querySelectorAll('.del').forEach(b=> b.onclick = async ()=>{
-    const id = b.dataset.id;
-    if(editingId !== null && id===editingId){ exitEdit(); $('mg').value=''; $('note').value=''; $('live').style.display='none'; $('save').disabled=true; }
+  h.innerHTML = `<div class="hist">
+    <div class="hhead"><div>Ngày</div><div>Thời điểm</div><div>mmol/L</div><div>Đánh giá</div></div>
+    ${rows}
+  </div>`;
+
+  // sửa / xoá
+  function doEdit(id){ startEdit(id); }
+  async function doDel(id){
+    const r = records.find(x=> String(x.id)===String(id));
+    const label = r ? `${fmt(r.mmol)} mmol/L · ${TARGETS[r.kind].label}` : '';
+    const ok = await confirmDelete(label);
+    if(!ok) return;
+    if(emEditId !== null && String(id)===String(emEditId)) closeEdit();
     records = records.filter(r=> String(r.id) !== id);
     await dbDelete(id);
     render();
-  });
+  }
+  h.querySelectorAll('.act-edit').forEach(b=> b.onclick = ()=> doEdit(b.dataset.id));
+  h.querySelectorAll('.act-del').forEach(b=> b.onclick = ()=> doDel(b.dataset.id));
+
+  // swipe trên mobile: vuốt trái để lộ 2 nút
+  if(matchMedia('(max-width:560px)').matches){
+    h.querySelectorAll('.hrow').forEach(row=>{
+      const front = row.querySelector('.hrow-front');
+      let sx=0, dx=0, drag=false, open=false;
+      const OPEN=-104;
+      front.addEventListener('touchstart', e=>{ sx=e.touches[0].clientX; drag=true; }, {passive:true});
+      front.addEventListener('touchmove', e=>{
+        if(!drag) return;
+        dx = e.touches[0].clientX - sx + (open?OPEN:0);
+        dx = Math.max(OPEN, Math.min(0, dx));
+        front.style.transition='none';
+        front.style.transform=`translateX(${dx}px)`;
+      }, {passive:true});
+      front.addEventListener('touchend', ()=>{
+        drag=false; front.style.transition='';
+        open = dx < OPEN/2;
+        front.style.transform=`translateX(${open?OPEN:0}px)`;
+        // đóng các dòng khác
+        h.querySelectorAll('.hrow-front').forEach(f=>{ if(f!==front){ f.style.transform='translateX(0)'; } });
+      });
+    });
+  }
 }
 function escapeHtml(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 
@@ -801,6 +916,19 @@ $('tmStage').addEventListener('wheel', e=>{ e.preventDefault(); tmZoom(e.deltaY<
 // nền (ngoài ảnh) hoặc Esc để đóng
 $('tableModal').addEventListener('click', e=>{ if(e.target.id==='tableModal' || e.target.id==='tmStage') closeTable(); });
 window.addEventListener('keydown', e=>{ if(e.key==='Escape') closeTable(); });
+
+// ===== Xác nhận xoá (modal) =====
+function confirmDelete(label){
+  return new Promise(resolve=>{
+    const m = $('confirmModal');
+    $('cfSub').textContent = label || '';
+    m.classList.add('show');
+    const cleanup = ()=>{ m.classList.remove('show'); $('cfOk').onclick=null; $('cfCancel').onclick=null; m.onclick=null; };
+    $('cfOk').onclick = ()=>{ cleanup(); resolve(true); };
+    $('cfCancel').onclick = ()=>{ cleanup(); resolve(false); };
+    m.onclick = e=>{ if(e.target.id==='confirmModal'){ cleanup(); resolve(false); } };
+  });
+}
 
 // ===== Boot =====
 (async ()=>{ records = await load(); render(); applySuggestion(); })();
