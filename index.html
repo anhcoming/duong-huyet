@@ -77,6 +77,31 @@
     font-family:inherit;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;transition:background .15s}
   .view-btn:hover{background:var(--panel2);color:var(--txt)}
   .view-btn:active{transform:scale(.97)}
+  .icon-btn{flex:none;background:transparent;border:1px solid var(--line);color:var(--muted);
+    width:38px;height:38px;border-radius:50%;cursor:pointer;display:inline-flex;align-items:center;
+    justify-content:center;transition:background .15s,color .15s}
+  .icon-btn:hover{background:var(--panel2);color:var(--txt)}
+  .icon-btn:active{transform:scale(.95)}
+
+  /* Modal cài đặt */
+  #setModal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:58;
+    background:rgba(20,35,48,.45);backdrop-filter:blur(3px);padding:18px}
+  #setModal.show{display:flex;animation:fadein .25s ease}
+  #setModal .sm-box{background:var(--panel);border-radius:22px;padding:24px;width:100%;max-width:380px;
+    box-shadow:0 18px 50px rgba(20,40,55,.3)}
+  #setModal h3{font-size:17px;font-weight:700;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between}
+  #setModal .sm-x{background:none;border:none;font-size:18px;color:var(--muted);cursor:pointer;padding:2px 6px;border-radius:8px}
+  #setModal .sm-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+  #setModal .sm-row label{font-size:14px;color:var(--txt);margin:0}
+  #setModal input[type=time]{width:auto;font-size:16px;padding:8px 12px}
+  /* công tắc bật/tắt */
+  .switch{position:relative;width:50px;height:28px;flex:none}
+  .switch input{opacity:0;width:0;height:0}
+  .switch .slider{position:absolute;inset:0;background:var(--line);border-radius:20px;transition:.25s;cursor:pointer}
+  .switch .slider:before{content:"";position:absolute;width:22px;height:22px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.25s}
+  .switch input:checked + .slider{background:var(--accent)}
+  .switch input:checked + .slider:before{transform:translateX(22px)}
+  #setModal .sm-note{font-size:12px;color:var(--muted);line-height:1.5;margin-top:4px;margin-bottom:18px}
 
   label{display:block;font-size:13px;color:var(--muted);margin-bottom:7px}
   .row{display:flex;gap:12px;flex-wrap:wrap}
@@ -161,16 +186,15 @@
     <div class="sub">Nhập mg/dL — tự quy ra mmol/L và đánh giá theo thời điểm đo</div>
   </header>
 
-  <div id="dbWarn" style="display:none;background:#fbe9c2;border:1px solid #a86807;color:#6a4204;border-radius:12px;padding:14px 16px;margin-bottom:20px;font-size:13px;line-height:1.6">
-    <b>Chưa kết nối cơ sở dữ liệu.</b> Mở file này và điền <code>SUPABASE_URL</code> và <code>SUPABASE_KEY</code> ở đầu phần script. Hiện dữ liệu chỉ lưu tạm trong phiên.
-  </div>
-  <div id="dbErr" style="display:none;background:#f8d2d2;border:1px solid #c12f2f;color:#7a1d1d;border-radius:12px;padding:14px 16px;margin-bottom:20px;font-size:13px;line-height:1.6"></div>
-  <div id="dbStatus" style="display:none;border-radius:10px;padding:9px 14px;margin-bottom:20px;font-size:12px;font-weight:500"></div>
-
 
   <!-- NHẬP -->
   <div class="card">
-    <h2 id="formTitle">Nhập kết quả đo</h2>
+    <div class="card-head">
+      <h2 id="formTitle">Nhập kết quả đo</h2>
+      <button class="icon-btn" id="settingsBtn" aria-label="Cài đặt">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+      </button>
+    </div>
 
     <div class="editbar" id="editbar">
       <span>Đang sửa bản ghi cũ</span>
@@ -229,6 +253,21 @@
   <div class="msg" id="popMsg"></div>
 </div>
 
+<div id="setModal" aria-hidden="true">
+  <div class="sm-box">
+    <h3>Cài đặt nhắc nhở <button class="sm-x" id="setClose" aria-label="Đóng">✕</button></h3>
+    <div class="sm-row">
+      <label for="setEnabled">Bật nhắc đo đường huyết</label>
+      <span class="switch"><input type="checkbox" id="setEnabled"><span class="slider"></span></span>
+    </div>
+    <div class="sm-row">
+      <label for="setTime">Giờ nhắc hằng ngày</label>
+      <input type="time" id="setTime" value="11:45">
+    </div>
+    <div class="sm-note" id="setPermNote"></div>
+    <button class="btn" id="setSave">Lưu cài đặt</button>
+  </div>
+</div>
 <div id="tableModal" aria-hidden="true">
   <div class="tm-bar">
     <span class="ttl">Bảng theo dõi</span>
@@ -259,10 +298,7 @@ let sb = null;
 const dbOn = SUPABASE_URL && SUPABASE_KEY;
 if(dbOn){ try{ sb = createClient(SUPABASE_URL, SUPABASE_KEY); }catch(e){ console.error(e); } }
 
-function showErr(msg){
-  if(/postMessage|DataCloneError|could not be cloned/i.test(String(msg))) return; // lỗi môi trường preview, bỏ qua
-  const e=document.getElementById('dbErr'); e.style.display='block'; e.textContent='Lỗi kết nối: '+msg;
-}
+function showErr(msg){ /* không hiện thông báo db */ }
 
 // ===== Mục tiêu (mmol/L) theo thời điểm =====
 const TARGETS = {
@@ -310,36 +346,17 @@ function applySuggestion(){
   updateLive();
 }
 
-// Báo trạng thái kết nối
-function setStatus(kind, text){
-  const e = document.getElementById('dbStatus');
-  e.style.display='block';
-  if(kind==='ok'){ e.style.background='#cdf0e2'; e.style.color='#0a5c46'; e.style.border='1px solid #0a7256'; }
-  else { e.style.background='#fbe9c2'; e.style.color='#6a4204'; e.style.border='1px solid #a86807'; }
-  e.textContent = text;
-}
+// Báo trạng thái kết nối (đã tắt)
+function setStatus(kind, text){ /* không hiện thông báo db */ }
 
 // Storage qua Supabase; fallback bộ nhớ tạm nếu chưa cấu hình
 async function load(){
-  if(!sb){
-    document.getElementById('dbWarn').style.display='block';
-    setStatus('warn','Đang chạy ngoại tuyến — dữ liệu chỉ lưu tạm trong phiên này.');
-    return window.__mem || [];
-  }
+  if(!sb){ return window.__mem || []; }
   try{
     const { data, error } = await sb.from('readings').select('*').order('created_at', { ascending:false });
-    if(error){
-      setStatus('warn','Không đọc được dữ liệu từ cơ sở dữ liệu.');
-      const e=document.getElementById('dbErr'); e.style.display='block'; e.textContent='Lỗi cơ sở dữ liệu: '+error.message;
-      return [];
-    }
-    setStatus('ok','Đã kết nối cơ sở dữ liệu — '+(data?data.length:0)+' bản ghi.');
+    if(error){ return []; }
     return data || [];
-  }catch(err){
-    setStatus('warn','Không kết nối được cơ sở dữ liệu (kiểm tra mạng / cấu hình).');
-    const e=document.getElementById('dbErr'); e.style.display='block'; e.textContent='Lỗi: '+(err.message||err);
-    return [];
-  }
+  }catch(err){ return []; }
 }
 // Thêm 1 bản ghi mới
 async function dbInsert(rec){
@@ -359,6 +376,23 @@ async function dbDelete(id){
   if(!sb){ window.__mem = (window.__mem||[]).filter(r=> r.id!==id); return; }
   const { error } = await sb.from('readings').delete().eq('id', id);
   if(error) showErr(error.message);
+}
+
+// Đọc cài đặt nhắc nhở từ DB
+async function dbLoadSettings(){
+  if(!sb) return null;
+  try{
+    const { data, error } = await sb.from('settings').select('data').eq('id','reminder').maybeSingle();
+    if(error) return null;
+    return data ? data.data : null;
+  }catch(e){ return null; }
+}
+// Lưu cài đặt nhắc nhở vào DB (upsert 1 dòng id='reminder')
+async function dbSaveSettings(obj){
+  if(!sb) return;
+  try{
+    await sb.from('settings').upsert({ id:'reminder', data:obj, updated_at:new Date().toISOString() });
+  }catch(e){}
 }
 
 
@@ -830,8 +864,87 @@ $('tmStage').addEventListener('wheel', e=>{ e.preventDefault(); tmZoom(e.deltaY<
 $('tableModal').addEventListener('click', e=>{ if(e.target.id==='tableModal' || e.target.id==='tmStage') closeTable(); });
 window.addEventListener('keydown', e=>{ if(e.key==='Escape') closeTable(); });
 
+// ===== Cài đặt nhắc nhở =====
+const SET_KEY = 'bg_reminder_settings';
+let reminder = { enabled:true, time:'11:45' };
+try{ const s = localStorage.getItem(SET_KEY); if(s) reminder = Object.assign(reminder, JSON.parse(s)); }catch(e){}
+
+const REMIND_TITLE = 'Chuẩn bị ăn cơm thôi 🍚';
+const REMIND_BODY  = 'NHỚ ĐO ĐƯỜNG HUYẾT LÚC ĐÓI nhé vợ ơi ♥';
+
+function saveSettings(){
+  try{ localStorage.setItem(SET_KEY, JSON.stringify(reminder)); }catch(e){}
+  dbSaveSettings(reminder);   // đồng bộ lên DB
+}
+
+function fireReminder(){
+  if('Notification' in window && Notification.permission === 'granted'){
+    try{ new Notification(REMIND_TITLE, { body: REMIND_BODY, requireInteraction:true }); return; }catch(e){}
+  }
+  const pop = $('pop');
+  pop.className = 'p-warn';
+  $('popEmo').textContent = '🍚';
+  $('popMsg').textContent = 'Chuẩn bị ăn cơm — NHỚ ĐO ĐƯỜNG HUYẾT LÚC ĐÓI nha ♥';
+  pop.classList.add('show','p-warn');
+  clearTimeout(popTimer);
+  popTimer = setTimeout(hidePopup, 6000);
+  pop.onclick = hidePopup;
+}
+
+let lastRemindKey = '';
+function checkReminder(){
+  if(!reminder.enabled) return;
+  const [rh, rm] = reminder.time.split(':').map(Number);
+  const now = new Date();
+  const key = now.toISOString().slice(0,10);
+  if(now.getHours()===rh && now.getMinutes()===rm && lastRemindKey!==key){
+    lastRemindKey = key;
+    fireReminder();
+  }
+}
+setInterval(checkReminder, 20000);
+checkReminder();
+
+// ----- Modal cài đặt -----
+function updatePermNote(){
+  const note = $('setPermNote');
+  if(!('Notification' in window)){ note.textContent='Trình duyệt này không hỗ trợ thông báo hệ thống. App sẽ nhắc bằng popup khi đang mở.'; return; }
+  if(Notification.permission==='granted') note.textContent='Đã cho phép thông báo. Nhắc sẽ hiện cả khi đang ở tab khác (miễn app còn mở).';
+  else if(Notification.permission==='denied') note.textContent='Thông báo đang bị chặn. Vào cài đặt trình duyệt để bật lại, nếu không app chỉ nhắc bằng popup khi đang mở.';
+  else note.textContent='Bật nhắc rồi bấm Lưu, trình duyệt sẽ hỏi cho phép thông báo — nhớ chọn Cho phép nhé.';
+}
+function openSettings(){
+  $('setEnabled').checked = reminder.enabled;
+  $('setTime').value = reminder.time;
+  updatePermNote();
+  $('setModal').classList.add('show');
+}
+function closeSettings(){ $('setModal').classList.remove('show'); }
+
+$('settingsBtn').addEventListener('click', openSettings);
+$('setClose').addEventListener('click', closeSettings);
+$('setModal').addEventListener('click', e=>{ if(e.target.id==='setModal') closeSettings(); });
+$('setSave').addEventListener('click', async ()=>{
+  reminder.enabled = $('setEnabled').checked;
+  reminder.time = $('setTime').value || '11:45';
+  saveSettings();
+  lastRemindKey = '';   // cho phép nhắc lại nếu đổi giờ trong ngày
+  // xin quyền thông báo nếu vừa bật
+  if(reminder.enabled && 'Notification' in window && Notification.permission==='default'){
+    try{ await Notification.requestPermission(); }catch(e){}
+  }
+  closeSettings();
+});
+
 // ===== Boot =====
-(async ()=>{ records = await load(); render(); applySuggestion(); })();
+(async ()=>{
+  records = await load();
+  render();
+  applySuggestion();
+  // đồng bộ cài đặt nhắc từ DB (ưu tiên DB nếu có)
+  const remote = await dbLoadSettings();
+  if(remote){ reminder = Object.assign(reminder, remote); try{ localStorage.setItem(SET_KEY, JSON.stringify(reminder)); }catch(e){} }
+})();
 </script>
 </body>
 </html>
