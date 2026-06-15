@@ -186,10 +186,10 @@
   .hc-when .kind-sm{display:none}
   .hc-val{display:flex;align-items:baseline;gap:6px;white-space:nowrap}
   .hc-val .mgsub{color:var(--muted);font-size:11px}
-  .hc-note{color:var(--muted);font-size:12px;white-space:nowrap;overflow-x:auto;
-    -webkit-overflow-scrolling:touch;scrollbar-width:thin}
-  .hc-note::-webkit-scrollbar{height:4px}
-  .hc-note::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px}
+  .hc-note{color:var(--muted);font-size:12px;white-space:normal;word-break:break-word;overflow-wrap:anywhere;line-height:1.35}
+  .note-list{margin:0;padding-left:16px;list-style:disc}
+  .note-list li{margin:0 0 2px 0}
+  .note-list li:last-child{margin-bottom:0}
   .mval{font-weight:700;font-size:15px}
   .mval.hi{color:var(--high)}
   .hrow-front{cursor:pointer}
@@ -637,8 +637,17 @@ function render(){
   if(!records.length){ h.innerHTML = '<div class="empty">Chưa có dữ liệu nào hết ♥ Nhập kết quả đo đầu tiên ở trên nhé.</div>'; return; }
   let rows = records.map(r=>{
     const a = assess(r.mmol, r.kind);
-    const d = r.date ? r.date.split('-').reverse().slice(0,2).join('/') : '';
-    const note = r.note ? escapeHtml(r.note) : '<span style="opacity:.35">—</span>';
+    const d = r.date ? (r.date === todayStr() ? 'Hôm nay' : r.date.split('-').reverse().slice(0,2).join('/')) : '';
+    let note;
+    if(r.note){
+      const parts = r.note.split(',').map(s=>s.trim()).filter(Boolean);
+      const cap = s => s.charAt(0).toLocaleUpperCase('vi-VN') + s.slice(1);
+      note = parts.length > 1
+        ? '<ul class="note-list">' + parts.map(p=>`<li>${escapeHtml(cap(p))}</li>`).join('') + '</ul>'
+        : escapeHtml(cap(r.note));
+    } else {
+      note = '<span style="opacity:.35">—</span>';
+    }
     return `<div class="hrow" data-id="${r.id}">
       <div class="hrow-actions">
         <button class="act-edit" data-id="${r.id}" aria-label="Sửa">✎</button>
