@@ -323,19 +323,19 @@
 <button class="gold-badge loading" id="goldBtn" type="button" title="Giá vàng BTMC">
   <span class="gb-icon" aria-hidden="true">🪙</span>
   <span class="gb-text">
-    <span class="gb-name">VÀNG BTMC</span>
+    <span class="gb-name">GIÁ VÀNG</span>
     <span class="gb-price" id="gbPrice">…</span>
   </span>
 </button>
 <div id="goldPanel" role="dialog" aria-label="Giá vàng BTMC">
   <div class="gp-head">
-    <div class="gp-title">Giá vàng Bảo Tín Minh Châu</div>
+    <div class="gp-title">Giá vàng các thương hiệu</div>
     <button class="gp-refresh" id="gpRefresh" type="button" title="Tải lại">↻</button>
     <button class="gp-close" id="gpClose" type="button" aria-label="Đóng">✕</button>
   </div>
   <div class="gp-time" id="gpTime">—</div>
   <div class="gp-list" id="gpList"><div class="gp-empty">Đang tải…</div></div>
-  <div class="gp-foot">Nguồn: api.btmc.vn · đơn vị 1 lượng (VNĐ)</div>
+  <div class="gp-foot">Nguồn: vang.today · đơn vị 1 lượng (VNĐ)</div>
 </div>
 
 <div class="wrap">
@@ -1141,51 +1141,33 @@ function confirmDelete(label){
   });
 }
 
-// ===== Giá vàng BTMC =====
-const BTMC_KEY = '3kd8ub1llcg9t45hnoh8hmn7t5kc2v';
-const BTMC_BASE = `/api/BTMCAPI/getpricebtmc?key=${BTMC_KEY}`;
-const BTMC_URLS = [
-  // Proxy riêng (Supabase Edge Function) — bỏ qua nếu chưa deploy
-  `${SUPABASE_URL}/functions/v1/btmc`,
-  // Fallback (thường bị CORS / SSL, chỉ chạy được trong môi trường đặc biệt)
-  `https://api.btmc.vn${BTMC_BASE}`,
-  `http://api.btmc.vn${BTMC_BASE}`,
-  `https://api.allorigins.win/raw?url=${encodeURIComponent('http://api.btmc.vn' + BTMC_BASE)}`,
-  `https://corsproxy.io/?${encodeURIComponent('https://api.btmc.vn' + BTMC_BASE)}`,
-];
+// ===== Giá vàng (nguồn: vang.today, có CORS sẵn) =====
+const GOLD_API = 'https://vang.today/api/prices';
 let goldLastFetch = 0;
 
-async function fetchBTMC(){
-  for(const u of BTMC_URLS){
-    try{
-      const opts = { cache:'no-store' };
-      // Supabase Edge Function cần kèm apikey
-      if(u.includes('supabase.co/functions')){
-        opts.headers = {
-          'apikey': SUPABASE_KEY,
-          'Authorization': `Bearer ${SUPABASE_KEY}`,
-        };
-      }
-      const r = await fetch(u, opts);
-      if(!r.ok) continue;
-      const txt = await r.text();
-      return JSON.parse(txt);
-    }catch(e){ /* thử URL kế tiếp */ }
-  }
-  return null;
+async function fetchGold(){
+  try{
+    const r = await fetch(GOLD_API, { cache:'no-store' });
+    if(!r.ok) return null;
+    return await r.json();
+  }catch(e){ return null; }
 }
 
-function parseBTMC(json){
-  const list = (json && json.DataList && json.DataList.Data) || [];
-  const items = list.map(d=>({
-    name: (d['@n_1']||'').trim(),
-    karat: (d['@k_1']||'').trim(),
-    purity: (d['@h_1']||'').trim(),
-    buy: parseInt((d['@pb_1']||'0').replace(/\D/g,''),10) || 0,
-    sell: parseInt((d['@ps_1']||'0').replace(/\D/g,''),10) || 0,
-    time: (d['@d_1']||'').trim(),
-  })).filter(x=> x.name && (x.buy || x.sell));
-  return items;
+function parseGold(json){
+  if(!json || !json.prices) return { items:[], time:'' };
+  const items = Object.entries(json.prices)
+    .filter(([_,p]) => p && p.currency === 'VND')
+    .map(([code,p]) => ({
+      code,
+      name: p.name || code,
+      karat: '',
+      purity: '',
+      buy: Number(p.buy) || 0,
+      sell: Number(p.sell) || 0,
+    }))
+    .filter(x => x.buy || x.sell);
+  const time = (json.time && json.date) ? `${json.time} ${json.date}` : '';
+  return { items, time };
 }
 
 function fmtVND(n){ return n ? n.toLocaleString('vi-VN') : '—'; }
@@ -1196,8 +1178,9 @@ function fmtShort(n){
 }
 
 function pickMainGold(items){
-  return items.find(i=>/r[ồo]ng th[ăa]ng long/i.test(i.name))
-      || items.find(i=>/v[àa]ng mi[ếe]ng/i.test(i.name))
+  return items.find(i=>/^bao tin sjc$/i.test(i.name))
+      || items.find(i=>/bao tin/i.test(i.name))
+      || items.find(i=>/^sjc/i.test(i.name))
       || items[0];
 }
 
@@ -1227,21 +1210,20 @@ async function refreshGold(force){
   if(!force && now - goldLastFetch < 60_000) return; // throttle 60s
   const btn = $('goldBtn'), refresh = $('gpRefresh');
   btn.classList.add('loading'); refresh.classList.add('spin');
-  const json = await fetchBTMC();
+  const json = await fetchGold();
   refresh.classList.remove('spin');
   if(!json){
     btn.classList.remove('loading');
     btn.classList.add('err');
     $('gbPrice').textContent = 'Lỗi';
-    $('gpList').innerHTML = '<div class="gp-empty">Không lấy được dữ liệu. Có thể do mạng hoặc nguồn tạm dừng.</div>';
+    $('gpList').innerHTML = '<div class="gp-empty">Không lấy được dữ liệu. Thử lại sau nhé ♥</div>';
     return;
   }
   goldLastFetch = now;
   btn.classList.remove('loading','err');
-  const items = parseBTMC(json);
+  const { items, time } = parseGold(json);
   const main = pickMainGold(items);
   $('gbPrice').textContent = main ? fmtShort(main.sell) : '—';
-  const time = items[0]?.time || '';
   renderGold(items, time);
 }
 
