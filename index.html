@@ -752,6 +752,14 @@ function buildTableCanvas(){
 
   // chiều cao mỗi hàng theo số dòng nhật ký + ghi chú
   function diaryLines(cell){ return cell.notes.length ? cell.notes : []; }
+  const capFirst = s => s ? s.charAt(0).toLocaleUpperCase('vi-VN') + s.slice(1) : s;
+  function notesToItems(notes){
+    const items = [];
+    for(const n of notes){
+      String(n).split(',').map(s=>s.trim()).filter(Boolean).forEach(p=> items.push(capFirst(p)));
+    }
+    return items;
+  }
   const cv0 = document.createElement('canvas'); const mx0 = cv0.getContext('2d');
   function wrapCount(text, maxW, font){
     mx0.font = font; if(!text) return 0;
@@ -759,12 +767,17 @@ function buildTableCanvas(){
     for(const w of words){ const t=line?line+' '+w:w; if(mx0.measureText(t).width>maxW && line){ n++; line=w; } else line=t; }
     return n;
   }
+  function itemsLineCount(items, maxW, font){
+    let total = 0;
+    for(const it of items) total += wrapCount('• ' + it, maxW, font);
+    return total;
+  }
   const heights = dates.map(d=>{
     const data = byDate[d];
     let maxL = 1;
     for(const k of mealKeys){
-      const lines = data[k].notes.join(' • ');
-      maxL = Math.max(maxL, wrapCount(lines, cDiary-12, '11px Arial'));
+      const items = notesToItems(data[k].notes);
+      maxL = Math.max(maxL, itemsLineCount(items, cDiary-12, '11px Arial') || 1);
     }
     const noteLines = wrapCount(allNotes(data), colNote-12, '11px Arial');
     return Math.max(56, 14 + Math.max(maxL, noteLines)*lh);
@@ -813,11 +826,12 @@ function buildTableCanvas(){
   for(let i=0;i<3;i++) sub(mealX(i));
 
   function wrap(text, x, y, maxW, color, font){
-    if(!text) return;
+    if(!text) return 0;
     cx.font=font; cx.fillStyle=color; cx.textAlign='left';
-    const words=String(text).split(' '); let line='', yy=y;
-    for(const w of words){ const t=line?line+' '+w:w; if(cx.measureText(t).width>maxW && line){ cx.fillText(line,x,yy); line=w; yy+=lh; } else line=t; }
+    const words=String(text).split(' '); let line='', yy=y, n=1;
+    for(const w of words){ const t=line?line+' '+w:w; if(cx.measureText(t).width>maxW && line){ cx.fillText(line,x,yy); line=w; yy+=lh; n++; } else line=t; }
     if(line) cx.fillText(line,x,yy);
+    return n;
   }
   function val(rec, kind, cx0, cw, y, rh){
     if(!rec) return;
@@ -840,8 +854,13 @@ function buildTableCanvas(){
       const x = mealX(mi);
       const cell = data[mealKeys[mi]];
       val(cell.doi, 'doi', x, cDoi, y, rh);
-      // nhật ký = ghi chú bữa
-      wrap(cell.notes.join(' • '), x+cDoi+5, y+12, cDiary-10, BLK, '11px Arial');
+      // nhật ký = ghi chú bữa, tách dấu phẩy + viết hoa đầu dòng
+      const items = notesToItems(cell.notes);
+      let yy = y+12;
+      for(const it of items){
+        const used = wrap('• ' + it, x+cDoi+5, yy, cDiary-10, BLK, '11px Arial');
+        yy += used*lh;
+      }
       val(cell.h1, 'h1', x+cDoi+cDiary, cH1, y, rh);
       val(cell.h2, 'h2', x+cDoi+cDiary+cH1, cH2, y, rh);
     }
