@@ -242,36 +242,39 @@
   .hday-scroll::-webkit-scrollbar{height:6px}
   .hday-scroll::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
 
-  .hrow{position:relative;overflow:hidden;min-width:520px}
+  .hrow{position:relative;display:flex;align-items:stretch;min-width:520px}
   .hrow + .hrow{border-top:1px dashed var(--line)}
-  .hrow-actions{position:absolute;top:0;right:0;height:100%;display:flex;align-items:stretch;z-index:0}
-  .hrow-actions button{border:none;cursor:pointer;width:48px;font-size:15px;color:#fff}
-  .act-edit{background:var(--accent)}
-  .act-del{background:var(--high)}
+  .hrow-actions{display:flex;align-items:center;gap:8px;padding-left:12px;flex-shrink:0;margin-left:auto}
+  .hrow-actions button{
+    border:1px solid var(--line);cursor:pointer;width:34px;height:34px;border-radius:10px;
+    background:transparent;color:var(--muted);display:inline-flex;align-items:center;justify-content:center;
+    transition:all .15s ease;padding:0;
+  }
+  .hrow-actions button svg{display:block}
+  .act-edit:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+  .act-del:hover{background:var(--high);border-color:var(--high);color:#fff}
+  .hrow-actions button:active{transform:scale(.92)}
 
   .hrow-front{
-    position:relative;z-index:1;background:var(--panel);
-    display:grid;grid-template-columns:90px 1.1fr 1fr 1fr 1.4fr;
-    gap:12px;align-items:center;padding:10px 0;cursor:pointer;
-    transition:transform .25s ease;
+    flex:1;min-width:0;background:var(--panel);
+    display:grid;grid-template-columns:110px 1fr 1fr 1.4fr;
+    gap:12px;align-items:center;padding:10px 0;
   }
 
-  /* Cột 1: Pill buổi + giờ */
+  /* Cột 1: Pill buổi + giờ + kind */
   .hc-when{
-    display:inline-flex;flex-direction:column;align-items:flex-start;gap:1px;
-    padding:6px 10px;border-radius:11px;min-width:76px;
+    display:inline-flex;flex-direction:column;align-items:flex-start;gap:3px;
+    padding:6px 10px;border-radius:11px;min-width:96px;
   }
   .hc-when .period{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;letter-spacing:.2px}
   .hc-when .period .pi{font-size:11px;line-height:1}
   .hc-when .t{font-size:16px;font-weight:700;letter-spacing:.3px}
+  .hc-when .kind{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;opacity:.85;margin-top:1px}
+  .hc-when .kind .pi{font-size:11px;line-height:1}
   .period-sang{background:#fff5d4;color:#7a5300}
   .period-trua{background:#ffe1c2;color:#923f00}
   .period-chieu{background:#dbeaff;color:#0e5096}
   .period-toi  {background:#e2dcf5;color:#42357f}
-
-  /* Cột 2: Kind */
-  .hc-kind{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:13px}
-  .hc-kind .pi{font-size:13px;line-height:1}
 
   /* Cột 3: Value */
   .hc-val{display:flex;flex-direction:column;align-items:flex-start;line-height:1.15;gap:2px}
@@ -296,11 +299,20 @@
 
   .empty{color:var(--muted);text-align:center;padding:30px 0;font-size:14px}
 
-  /* Trượt lộ nút Sửa / Xoá */
-  .hrow.open .hrow-front{transform:translateX(-100px)}
-  @media(hover:hover) and (pointer:fine){
-    .hrow:hover .hrow-front{transform:translateX(-100px)}
+  /* Scroll to top */
+  #scrollTop{
+    position:fixed;right:18px;bottom:22px;z-index:50;
+    width:44px;height:44px;border-radius:50%;border:none;cursor:pointer;
+    background:var(--accent);color:#fff;
+    display:inline-flex;align-items:center;justify-content:center;
+    box-shadow:0 6px 18px rgba(10,138,104,.32);
+    opacity:0;transform:translateY(12px) scale(.9);pointer-events:none;
+    transition:opacity .2s ease, transform .2s ease, box-shadow .15s ease, background .3s ease;
   }
+  #scrollTop.show{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
+  #scrollTop:hover{box-shadow:0 8px 22px rgba(10,138,104,.42)}
+  #scrollTop:active{transform:translateY(0) scale(.92)}
+  #scrollTop svg{display:block}
 
   @media(max-width:560px){
     body{padding:16px 12px 50px}
@@ -323,19 +335,19 @@
 <button class="gold-badge loading" id="goldBtn" type="button" title="Giá vàng BTMC">
   <span class="gb-icon" aria-hidden="true">🪙</span>
   <span class="gb-text">
-    <span class="gb-name">VÀNG BTMC</span>
+    <span class="gb-name">GIÁ VÀNG</span>
     <span class="gb-price" id="gbPrice">…</span>
   </span>
 </button>
 <div id="goldPanel" role="dialog" aria-label="Giá vàng BTMC">
   <div class="gp-head">
-    <div class="gp-title">Giá vàng Bảo Tín Minh Châu</div>
+    <div class="gp-title">Giá vàng các thương hiệu</div>
     <button class="gp-refresh" id="gpRefresh" type="button" title="Tải lại">↻</button>
     <button class="gp-close" id="gpClose" type="button" aria-label="Đóng">✕</button>
   </div>
   <div class="gp-time" id="gpTime">—</div>
   <div class="gp-list" id="gpList"><div class="gp-empty">Đang tải…</div></div>
-  <div class="gp-foot">Nguồn: api.btmc.vn · đơn vị 1 lượng (VNĐ)</div>
+  <div class="gp-foot">Nguồn: vang.today · đơn vị 1 lượng (VNĐ)</div>
 </div>
 
 <div class="wrap">
@@ -789,22 +801,26 @@ function render(){
         note = '<span style="opacity:.35">—</span>';
       }
       html += `<div class="hrow" data-id="${r.id}">
-        <div class="hrow-actions">
-          <button class="act-edit" data-id="${r.id}" aria-label="Sửa">✎</button>
-          <button class="act-del" data-id="${r.id}" aria-label="Xoá">✕</button>
-        </div>
         <div class="hrow-front">
           <div class="hc-when period-${p.slug||'sang'}">
             <div class="period"><span class="pi">${p.icon||'⏰'}</span>${p.label||'—'}</div>
             <div class="t">${r.time||''}</div>
+            <div class="kind"><span class="pi">${kindIcon(r.kind)}</span>${TARGETS[r.kind].label}</div>
           </div>
-          <div class="hc-kind"><span class="pi">${kindIcon(r.kind)}</span>${TARGETS[r.kind].label}</div>
           <div class="hc-val">
             <div class="vt"><span class="mval ${a.cls==='ok'?'':'hi'}">${fmt(r.mmol)}</span><span class="munit">mmol/L</span></div>
             <div class="mgsub">${r.mg} mg/dL</div>
           </div>
           <div class="hc-eval"><span class="pill p-${a.cls}"><span class="pi">${evalIcon(a.cls)}</span>${a.txt}</span></div>
           <div class="hc-note"><div class="nh">Ghi chú</div>${note}</div>
+        </div>
+        <div class="hrow-actions">
+          <button class="act-edit" data-id="${r.id}" aria-label="Sửa" title="Sửa">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4Z"/></svg>
+          </button>
+          <button class="act-del" data-id="${r.id}" aria-label="Xoá" title="Xoá">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+          </button>
         </div>
       </div>`;
     }
@@ -827,38 +843,6 @@ function render(){
   }
   h.querySelectorAll('.act-edit').forEach(b=> b.onclick = (e)=>{ e.stopPropagation(); doEdit(b.dataset.id); });
   h.querySelectorAll('.act-del').forEach(b=> b.onclick = (e)=>{ e.stopPropagation(); doDel(b.dataset.id); });
-
-  function closeAll(except){
-    h.querySelectorAll('.hrow').forEach(r=>{ if(r!==except) r.classList.remove('open'); });
-  }
-
-  // Bấm vào dòng -> toggle trượt
-  h.querySelectorAll('.hrow').forEach(row=>{
-    const front = row.querySelector('.hrow-front');
-    front.addEventListener('click', ()=>{
-      const willOpen = !row.classList.contains('open');
-      closeAll(row);
-      row.classList.toggle('open', willOpen);
-    });
-  });
-
-  // Swipe cảm ứng: vuốt trái mở, vuốt phải đóng
-  h.querySelectorAll('.hrow').forEach(row=>{
-    const front = row.querySelector('.hrow-front');
-    let sx=0, dx=0, drag=false, moved=false;
-    front.addEventListener('touchstart', e=>{ sx=e.touches[0].clientX; drag=true; moved=false; }, {passive:true});
-    front.addEventListener('touchmove', e=>{
-      if(!drag) return;
-      dx = e.touches[0].clientX - sx;
-      if(Math.abs(dx)>6) moved=true;
-    }, {passive:true});
-    front.addEventListener('touchend', ()=>{
-      drag=false;
-      if(!moved) return;
-      if(dx < -30){ closeAll(row); row.classList.add('open'); }
-      else if(dx > 30){ row.classList.remove('open'); }
-    });
-  });
 }
 function escapeHtml(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 
@@ -1141,51 +1125,33 @@ function confirmDelete(label){
   });
 }
 
-// ===== Giá vàng BTMC =====
-const BTMC_KEY = '3kd8ub1llcg9t45hnoh8hmn7t5kc2v';
-const BTMC_BASE = `/api/BTMCAPI/getpricebtmc?key=${BTMC_KEY}`;
-const BTMC_URLS = [
-  // Proxy riêng (Supabase Edge Function) — bỏ qua nếu chưa deploy
-  `${SUPABASE_URL}/functions/v1/btmc`,
-  // Fallback (thường bị CORS / SSL, chỉ chạy được trong môi trường đặc biệt)
-  `https://api.btmc.vn${BTMC_BASE}`,
-  `http://api.btmc.vn${BTMC_BASE}`,
-  `https://api.allorigins.win/raw?url=${encodeURIComponent('http://api.btmc.vn' + BTMC_BASE)}`,
-  `https://corsproxy.io/?${encodeURIComponent('https://api.btmc.vn' + BTMC_BASE)}`,
-];
+// ===== Giá vàng (nguồn: vang.today, có CORS sẵn) =====
+const GOLD_API = 'https://vang.today/api/prices';
 let goldLastFetch = 0;
 
-async function fetchBTMC(){
-  for(const u of BTMC_URLS){
-    try{
-      const opts = { cache:'no-store' };
-      // Supabase Edge Function cần kèm apikey
-      if(u.includes('supabase.co/functions')){
-        opts.headers = {
-          'apikey': SUPABASE_KEY,
-          'Authorization': `Bearer ${SUPABASE_KEY}`,
-        };
-      }
-      const r = await fetch(u, opts);
-      if(!r.ok) continue;
-      const txt = await r.text();
-      return JSON.parse(txt);
-    }catch(e){ /* thử URL kế tiếp */ }
-  }
-  return null;
+async function fetchGold(){
+  try{
+    const r = await fetch(GOLD_API, { cache:'no-store' });
+    if(!r.ok) return null;
+    return await r.json();
+  }catch(e){ return null; }
 }
 
-function parseBTMC(json){
-  const list = (json && json.DataList && json.DataList.Data) || [];
-  const items = list.map(d=>({
-    name: (d['@n_1']||'').trim(),
-    karat: (d['@k_1']||'').trim(),
-    purity: (d['@h_1']||'').trim(),
-    buy: parseInt((d['@pb_1']||'0').replace(/\D/g,''),10) || 0,
-    sell: parseInt((d['@ps_1']||'0').replace(/\D/g,''),10) || 0,
-    time: (d['@d_1']||'').trim(),
-  })).filter(x=> x.name && (x.buy || x.sell));
-  return items;
+function parseGold(json){
+  if(!json || !json.prices) return { items:[], time:'' };
+  const items = Object.entries(json.prices)
+    .filter(([_,p]) => p && p.currency === 'VND')
+    .map(([code,p]) => ({
+      code,
+      name: p.name || code,
+      karat: '',
+      purity: '',
+      buy: Number(p.buy) || 0,
+      sell: Number(p.sell) || 0,
+    }))
+    .filter(x => x.buy || x.sell);
+  const time = (json.time && json.date) ? `${json.time} ${json.date}` : '';
+  return { items, time };
 }
 
 function fmtVND(n){ return n ? n.toLocaleString('vi-VN') : '—'; }
@@ -1196,8 +1162,9 @@ function fmtShort(n){
 }
 
 function pickMainGold(items){
-  return items.find(i=>/r[ồo]ng th[ăa]ng long/i.test(i.name))
-      || items.find(i=>/v[àa]ng mi[ếe]ng/i.test(i.name))
+  return items.find(i=>/^bao tin sjc$/i.test(i.name))
+      || items.find(i=>/bao tin/i.test(i.name))
+      || items.find(i=>/^sjc/i.test(i.name))
       || items[0];
 }
 
@@ -1227,21 +1194,20 @@ async function refreshGold(force){
   if(!force && now - goldLastFetch < 60_000) return; // throttle 60s
   const btn = $('goldBtn'), refresh = $('gpRefresh');
   btn.classList.add('loading'); refresh.classList.add('spin');
-  const json = await fetchBTMC();
+  const json = await fetchGold();
   refresh.classList.remove('spin');
   if(!json){
     btn.classList.remove('loading');
     btn.classList.add('err');
     $('gbPrice').textContent = 'Lỗi';
-    $('gpList').innerHTML = '<div class="gp-empty">Không lấy được dữ liệu. Có thể do mạng hoặc nguồn tạm dừng.</div>';
+    $('gpList').innerHTML = '<div class="gp-empty">Không lấy được dữ liệu. Thử lại sau nhé ♥</div>';
     return;
   }
   goldLastFetch = now;
   btn.classList.remove('loading','err');
-  const items = parseBTMC(json);
+  const { items, time } = parseGold(json);
   const main = pickMainGold(items);
   $('gbPrice').textContent = main ? fmtShort(main.sell) : '—';
-  const time = items[0]?.time || '';
   renderGold(items, time);
 }
 
@@ -1261,6 +1227,21 @@ document.addEventListener('click', e=>{
   p.classList.remove('show');
 });
 window.addEventListener('keydown', e=>{ if(e.key==='Escape') $('goldPanel').classList.remove('show'); });
+
+// ===== Scroll to top =====
+(function(){
+  const btn = document.createElement('button');
+  btn.id = 'scrollTop';
+  btn.type = 'button';
+  btn.setAttribute('aria-label','Lên đầu trang');
+  btn.title = 'Lên đầu trang';
+  btn.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>';
+  document.body.appendChild(btn);
+  const toggle = ()=> btn.classList.toggle('show', window.scrollY > 240);
+  window.addEventListener('scroll', toggle, {passive:true});
+  btn.addEventListener('click', ()=> window.scrollTo({top:0, behavior:'smooth'}));
+  toggle();
+})();
 
 // ===== Boot =====
 (async ()=>{ records = await load(); render(); applySuggestion(); refreshGold(true); })();
