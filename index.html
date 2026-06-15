@@ -40,6 +40,12 @@
     .gold-badge.err{background:linear-gradient(135deg,#e4b4b4,#b07474);color:#3a1010}
     .gold-badge.loading .gb-price{opacity:.55}
 
+    #goldBackdrop{
+      position:fixed;inset:0;z-index:54;background:rgba(15,25,35,.32);
+      backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
+      opacity:0;pointer-events:none;transition:opacity .2s ease;
+    }
+    #goldBackdrop.show{opacity:1;pointer-events:auto}
     #goldPanel{position:fixed;top:48px;right:10px;z-index:56;width:min(340px, calc(100vw - 20px));
       background:var(--panel);border:1px solid var(--line);border-radius:14px;
       box-shadow:0 18px 50px rgba(20,40,55,.22);padding:12px 14px 10px;
@@ -213,6 +219,106 @@
     .stat .n{font-size:24px;font-weight:700}
     .stat .l{font-size:12px;color:var(--muted);margin-top:2px}
 
+    /* ====== Dashboard slider ====== */
+    .dash{padding:20px}
+    .dash-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .dash-head h2{margin:0}
+    .dash-dots{display:flex;gap:6px;align-items:center}
+    .dash-dots .dot{width:7px;height:7px;border-radius:50%;background:var(--line);border:none;padding:0;cursor:pointer;transition:all .25s ease}
+    .dash-dots .dot.on{width:20px;border-radius:4px;background:var(--accent)}
+
+    .dash-slider{
+      display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;
+      scrollbar-width:none;-webkit-overflow-scrolling:touch;padding-bottom:2px;
+    }
+    .dash-slider::-webkit-scrollbar{display:none}
+    .dash-slide{
+      flex:0 0 100%;scroll-snap-align:start;scroll-snap-stop:always;
+      min-width:0;box-sizing:border-box;
+    }
+
+    .dash-label{
+      font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.6px;
+      text-transform:uppercase;margin-bottom:8px;
+    }
+    .dash-hero{display:flex;align-items:baseline;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+    .dash-hero .dh-num{
+      font-size:42px;font-weight:800;color:var(--txt);line-height:1;letter-spacing:-.5px;
+      font-variant-numeric:tabular-nums;
+    }
+    .dash-hero .dh-unit{font-size:14px;color:var(--muted);font-weight:600}
+    .dash-hero .dh-trend{
+      font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;margin-left:auto;
+      display:inline-flex;align-items:center;gap:3px;letter-spacing:.2px;
+    }
+    .dash-hero .dh-trend.up  {color:var(--high);background:var(--highbg)}
+    .dash-hero .dh-trend.down{color:var(--ok);  background:var(--okbg)}
+    .dash-hero .dh-trend.flat{color:var(--muted);background:var(--panel2)}
+    .dash-sub{font-size:13px;color:var(--muted);margin-bottom:14px}
+    .dash-sub b{color:var(--txt);font-weight:700}
+
+    .dash-bar{display:flex;height:10px;border-radius:999px;overflow:hidden;background:var(--panel2);margin-bottom:12px}
+    .db-seg{display:block;height:100%;transition:width .5s ease}
+    .db-ok{background:var(--ok)}
+    .db-warn{background:var(--warn)}
+    .db-high{background:var(--high)}
+
+    .dash-legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--muted)}
+    .dash-legend .dl-item{display:inline-flex;align-items:center;gap:6px}
+    .dash-legend i.dotc{width:9px;height:9px;border-radius:50%;display:inline-block}
+    .dash-legend i.dotc.ok  {background:var(--ok)}
+    .dash-legend i.dotc.warn{background:var(--warn)}
+    .dash-legend i.dotc.high{background:var(--high)}
+    .dash-legend b{color:var(--txt);font-weight:700;margin-left:2px}
+
+    .dash-period{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:4px}
+    .dash-period .dp{
+      padding:10px 6px;border-radius:12px;background:var(--panel2);
+      display:flex;flex-direction:column;align-items:center;gap:3px;
+    }
+    .dash-period .dp .dp-l{font-size:10px;font-weight:700;letter-spacing:.4px}
+    .dash-period .dp .dp-n{font-size:18px;font-weight:700;color:var(--txt);line-height:1;font-variant-numeric:tabular-nums}
+    .dash-period .dp .dp-s{font-size:10.5px;color:var(--muted)}
+    .dp-l.sang  {color:#a47100}
+    .dp-l.trua  {color:#923f00}
+    .dp-l.chieu {color:#0e5096}
+    .dp-l.toi   {color:#42357f}
+
+    .dash-spark{margin-top:6px}
+    .dash-spark svg{width:100%;height:70px;display:block;overflow:visible}
+    .dash-spark .sp-line{fill:none;stroke:var(--accent);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+    .dash-spark .sp-fill{fill:var(--accent);opacity:.12}
+    .dash-spark .sp-dot{fill:var(--accent)}
+    .dash-spark .sp-dot.last{stroke:var(--panel);stroke-width:2.5}
+    .dash-spark .sp-empty{color:var(--muted);font-size:12px;text-align:center;padding:22px 0}
+
+    /* Donut */
+    .dn-wrap{display:flex;align-items:center;gap:18px;margin-top:6px}
+    .dn-chart{flex:0 0 140px;position:relative;width:140px;height:140px}
+    .dn-chart svg{width:100%;height:100%;display:block;overflow:visible}
+    .dn-chart .dn-center{
+      position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      pointer-events:none;
+    }
+    .dn-chart .dn-pct{font-size:26px;font-weight:800;color:var(--txt);line-height:1;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+    .dn-chart .dn-lbl{font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-top:3px}
+    .dn-seg{transition:stroke-dasharray .6s ease, stroke-dashoffset .6s ease}
+    .dn-seg.ok  {stroke:var(--ok)}
+    .dn-seg.warn{stroke:var(--warn)}
+    .dn-seg.high{stroke:var(--high)}
+    .dn-chart .dn-track{stroke:var(--panel2)}
+    .dn-empty{color:var(--muted);font-size:12px;text-align:center;padding:40px 0;flex:1}
+
+    .dn-stats{flex:1;display:flex;flex-direction:column;gap:9px;min-width:0}
+    .dn-row{display:flex;align-items:center;gap:8px;font-size:13px}
+    .dn-row .dn-key{display:inline-flex;align-items:center;gap:7px;flex:1;color:var(--muted);font-weight:600}
+    .dn-row .dn-key i{width:10px;height:10px;border-radius:50%;display:inline-block;flex-shrink:0}
+    .dn-row .dn-key.ok   i{background:var(--ok)}
+    .dn-row .dn-key.warn i{background:var(--warn)}
+    .dn-row .dn-key.high i{background:var(--high)}
+    .dn-row .dn-val{color:var(--txt);font-weight:700;font-variant-numeric:tabular-nums}
+    .dn-row .dn-pct-sm{color:var(--muted);font-size:11px;font-weight:600;margin-left:5px}
+
     .pill{display:inline-block;padding:3px 11px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
     .p-ok{background:var(--okbg);color:var(--ok)}
     .p-warn{background:var(--warnbg);color:var(--warn)}
@@ -343,6 +449,7 @@
     <span class="gb-price" id="gbPrice">…</span>
   </span>
 </button>
+<div id="goldBackdrop" aria-hidden="true"></div>
 <div id="goldPanel" role="dialog" aria-label="Giá vàng BTMC">
   <div class="gp-head">
     <div class="gp-title">Giá vàng các thương hiệu</div>
@@ -392,13 +499,63 @@
   </div>
 
   <!-- THỐNG KÊ -->
-  <div class="card" id="statsCard" style="display:none">
-    <h2>Tổng quan</h2>
-    <div class="stats">
-      <div class="stat"><div class="n" id="stTotal">0</div><div class="l">Lần đo</div></div>
-      <div class="stat"><div class="n" id="stOk" style="color:var(--ok)">0</div><div class="l">Đạt mục tiêu</div></div>
-      <div class="stat"><div class="n" id="stHigh" style="color:var(--high)">0</div><div class="l">Vượt mục tiêu</div></div>
-      <div class="stat"><div class="n" id="stAvg">0</div><div class="l">TB mmol/L</div></div>
+  <div class="card dash" id="statsCard" style="display:none">
+    <div class="dash-head">
+      <h2>Tổng quan</h2>
+      <div class="dash-dots" id="dashDots"></div>
+    </div>
+    <div class="dash-slider" id="dashSlider">
+      <!-- Slide 1: Phân loại (donut) -->
+      <div class="dash-slide" data-title="Phân loại">
+        <div class="dash-label">Phân loại đánh giá</div>
+        <div class="dn-wrap">
+          <div class="dn-chart" id="dsDonut"></div>
+          <div class="dn-stats" id="dsDonutStats"></div>
+        </div>
+      </div>
+
+      <!-- Slide 2: Tất cả thời gian -->
+      <div class="dash-slide" data-title="Tất cả">
+        <div class="dash-label">Trung bình tất cả</div>
+        <div class="dash-hero">
+          <span class="dh-num" id="dsAvg">0,0</span>
+          <span class="dh-unit">mmol/L</span>
+        </div>
+        <div class="dash-sub" id="dsSub">— lần đo</div>
+        <div class="dash-bar">
+          <span class="db-seg db-ok"   id="dsBarOk"   style="width:0%"></span>
+          <span class="db-seg db-warn" id="dsBarWarn" style="width:0%"></span>
+          <span class="db-seg db-high" id="dsBarHigh" style="width:0%"></span>
+        </div>
+        <div class="dash-legend">
+          <span class="dl-item"><i class="dotc ok"></i>Ổn định <b id="dsLegOk">0</b></span>
+          <span class="dl-item"><i class="dotc warn"></i>Hơi cao <b id="dsLegWarn">0</b></span>
+          <span class="dl-item"><i class="dotc high"></i>Cao <b id="dsLegHigh">0</b></span>
+        </div>
+      </div>
+
+      <!-- Slide 3: Hôm nay -->
+      <div class="dash-slide" data-title="Hôm nay">
+        <div class="dash-label">Hôm nay</div>
+        <div class="dash-hero">
+          <span class="dh-num" id="dsTodayCnt">0</span>
+          <span class="dh-unit">lần đo</span>
+        </div>
+        <div class="dash-sub" id="dsTodaySub">Chưa có dữ liệu</div>
+        <div class="dash-period" id="dsPeriod"></div>
+      </div>
+
+      <!-- Slide 4: 7 ngày -->
+      <div class="dash-slide" data-title="7 ngày">
+        <div class="dash-label">7 ngày gần đây</div>
+        <div class="dash-hero">
+          <span class="dh-num" id="ds7Avg">0,0</span>
+          <span class="dh-unit">mmol/L</span>
+          <span class="dh-trend" id="ds7Trend"></span>
+        </div>
+        <div class="dash-sub" id="ds7Sub">— ngày có dữ liệu</div>
+        <div class="dash-spark" id="dsSpark"></div>
+      </div>
     </div>
   </div>
 
@@ -754,24 +911,21 @@
 
   // ===== Render =====
   function render(){
-    // stats
-    if(records.length){
-      $('statsCard').style.display='block';
-      const ok = records.filter(r=> assess(r.mmol, r.kind).cls==='ok').length;
-      const high = records.length - ok;
-      const avg = records.reduce((s,r)=>s+r.mmol,0)/records.length;
-      $('stTotal').textContent = records.length;
-      $('stOk').textContent = ok;
-      $('stHigh').textContent = high;
-      $('stAvg').textContent = fmt(avg);
-    } else $('statsCard').style.display='none';
+    renderStats();
 
     // history
     const h = $('history');
     if(!records.length){ h.innerHTML = '<div class="empty">Chưa có dữ liệu nào hết ♥ Nhập kết quả đo đầu tiên ở trên nhé.</div>'; return; }
 
     const today = todayStr();
-    const dayLabel = dt => !dt ? '' : (dt === today ? 'Hôm nay' : dt.split('-').reverse().slice(0,2).join('/'));
+    const VN_DOW = ['Chủ nhật','Thứ 2','Thứ 3','Thứ 4','Thứ 5','Thứ 6','Thứ 7'];
+    const dayLabel = dt => {
+      if(!dt) return '';
+      if(dt === today) return 'Hôm nay';
+      const [y,m,d] = dt.split('-');
+      const dow = VN_DOW[new Date(+y, +m-1, +d).getDay()];
+      return `${dow}, ${d}/${m}/${y}`;
+    };
     const cap = s => s ? s.charAt(0).toLocaleUpperCase('vi-VN') + s.slice(1) : s;
     const evalIcon = cls => cls==='ok' ? '✓' : cls==='warn' ? '↗' : '▲';
     const kindIcon = k => k==='doi' ? '🩺' : '🍽️';
@@ -820,10 +974,10 @@
         </div>
         <div class="hrow-actions">
           <button class="act-edit" data-id="${r.id}" aria-label="Sửa" title="Sửa">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4Z"/></svg>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M21.731 2.269a2.625 2.625 0 0 0-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 0 0 0-3.712Z"/><path d="M19.513 8.199l-3.712-3.712-8.4 8.4a5.25 5.25 0 0 0-1.32 2.214l-.8 2.685a.75.75 0 0 0 .933.933l2.685-.8a5.25 5.25 0 0 0 2.214-1.32l8.4-8.4Z"/><path d="M5.25 5.25a3 3 0 0 0-3 3v10.5a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3V13.5a.75.75 0 0 0-1.5 0v5.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5V8.25a1.5 1.5 0 0 1 1.5-1.5h5.25a.75.75 0 0 0 0-1.5H5.25Z"/></svg>
           </button>
           <button class="act-del" data-id="${r.id}" aria-label="Xoá" title="Xoá">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path fill-rule="evenodd" d="M16.5 4.478v.227a48.816 48.816 0 0 1 3.878.512.75.75 0 1 1-.256 1.478l-.209-.035-1.005 13.07a3 3 0 0 1-2.991 2.77H8.084a3 3 0 0 1-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 0 1-.256-1.478A48.567 48.567 0 0 1 7.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 0 1 3.369 0c1.603.051 2.815 1.387 2.815 2.951Zm-6.136-1.452a51.196 51.196 0 0 1 3.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 0 0-6 0v-.113c0-.794.609-1.428 1.364-1.452Zm-.355 5.945a.75.75 0 1 0-1.5.058l.347 9a.75.75 0 1 0 1.499-.058l-.346-9Zm5.48.058a.75.75 0 1 0-1.498-.058l-.347 9a.75.75 0 0 0 1.5.058l.345-9Z" clip-rule="evenodd"/></svg>
           </button>
         </div>
       </div>`;
@@ -1215,22 +1369,26 @@
     renderGold(items, time);
   }
 
+  function setGoldOpen(open){
+    $('goldPanel').classList.toggle('show', open);
+    $('goldBackdrop').classList.toggle('show', open);
+  }
   $('goldBtn').addEventListener('click', e=>{
     e.stopPropagation();
-    const p = $('goldPanel');
-    const willOpen = !p.classList.contains('show');
-    p.classList.toggle('show', willOpen);
+    const willOpen = !$('goldPanel').classList.contains('show');
+    setGoldOpen(willOpen);
     if(willOpen) refreshGold(false);
   });
   $('gpRefresh').addEventListener('click', e=>{ e.stopPropagation(); refreshGold(true); });
-  $('gpClose').addEventListener('click', e=>{ e.stopPropagation(); $('goldPanel').classList.remove('show'); });
+  $('gpClose').addEventListener('click', e=>{ e.stopPropagation(); setGoldOpen(false); });
+  $('goldBackdrop').addEventListener('click', ()=> setGoldOpen(false));
   document.addEventListener('click', e=>{
     const p = $('goldPanel');
     if(!p.classList.contains('show')) return;
     if(p.contains(e.target) || $('goldBtn').contains(e.target)) return;
-    p.classList.remove('show');
+    setGoldOpen(false);
   });
-  window.addEventListener('keydown', e=>{ if(e.key==='Escape') $('goldPanel').classList.remove('show'); });
+  window.addEventListener('keydown', e=>{ if(e.key==='Escape') setGoldOpen(false); });
 
   // ===== Scroll to top =====
   (function(){
@@ -1258,8 +1416,198 @@
     toggle();
   })();
 
+  // ===== Dashboard slider =====
+  function renderStats(){
+    if(!records.length){ $('statsCard').style.display='none'; return; }
+    $('statsCard').style.display='block';
+
+    // Slide 1: tất cả
+    let okCnt=0, warnCnt=0, highCnt=0, sum=0;
+    for(const r of records){
+      const c = assess(r.mmol, r.kind).cls;
+      if(c==='ok') okCnt++; else if(c==='warn') warnCnt++; else highCnt++;
+      sum += r.mmol;
+    }
+    const total = records.length;
+    const avg = sum/total;
+    $('dsAvg').textContent = fmt(avg);
+    $('dsSub').innerHTML = `<b>${total}</b> lần đo · <b>${Math.round(okCnt/total*100)}%</b> ổn định`;
+    $('dsBarOk').style.width   = (okCnt/total*100)+'%';
+    $('dsBarWarn').style.width = (warnCnt/total*100)+'%';
+    $('dsBarHigh').style.width = (highCnt/total*100)+'%';
+    $('dsLegOk').textContent   = okCnt;
+    $('dsLegWarn').textContent = warnCnt;
+    $('dsLegHigh').textContent = highCnt;
+
+    // Slide 2: hôm nay
+    const today = todayStr();
+    const tRec = records.filter(r=> r.date===today);
+    $('dsTodayCnt').textContent = tRec.length;
+    if(tRec.length){
+      const latest = tRec[0];
+      const a = assess(latest.mmol, latest.kind);
+      $('dsTodaySub').innerHTML = `Mới nhất: <b>${fmt(latest.mmol)} mmol/L</b> · ${a.txt} (${latest.time||''})`;
+      const buckets = {sang:{c:0,s:0}, trua:{c:0,s:0}, chieu:{c:0,s:0}, toi:{c:0,s:0}};
+      for(const r of tRec){
+        const p = periodOf(r.time);
+        if(buckets[p.slug]){ buckets[p.slug].c++; buckets[p.slug].s += r.mmol; }
+      }
+      const labels = [['sang','Sáng'],['trua','Trưa'],['chieu','Chiều'],['toi','Tối']];
+      $('dsPeriod').innerHTML = labels.map(([slug,lbl])=>{
+        const b = buckets[slug];
+        return `<div class="dp">
+          <div class="dp-l ${slug}">${lbl}</div>
+          <div class="dp-n">${b.c}</div>
+          <div class="dp-s">${b.c ? fmt(b.s/b.c)+' mmol' : '—'}</div>
+        </div>`;
+      }).join('');
+    } else {
+      $('dsTodaySub').textContent = 'Chưa đo lần nào hôm nay';
+      $('dsPeriod').innerHTML = '';
+    }
+
+    // Slide 3: 7 ngày + sparkline + trend vs 7 ngày trước
+    const dailyAvgFor = (offsetStart, offsetEnd) => {
+      const out = [];
+      for(let i=offsetEnd; i>=offsetStart; i--){
+        const d = new Date(); d.setDate(d.getDate()-i);
+        const key = d.toISOString().slice(0,10);
+        const rs = records.filter(r=> r.date===key);
+        out.push(rs.length ? rs.reduce((s,r)=>s+r.mmol,0)/rs.length : null);
+      }
+      return out;
+    };
+    const week1 = dailyAvgFor(0, 6);
+    const week2 = dailyAvgFor(7, 13);
+    const v1 = week1.filter(v=>v!==null);
+    const v2 = week2.filter(v=>v!==null);
+    const avg1 = v1.length ? v1.reduce((s,v)=>s+v,0)/v1.length : null;
+    const avg2 = v2.length ? v2.reduce((s,v)=>s+v,0)/v2.length : null;
+    $('ds7Avg').textContent = avg1!==null ? fmt(avg1) : '—';
+    $('ds7Sub').innerHTML = `<b>${v1.length}/7</b> ngày có dữ liệu`;
+    const tr = $('ds7Trend');
+    if(avg1!==null && avg2!==null){
+      const diff = avg1 - avg2;
+      if(Math.abs(diff) < 0.1){ tr.textContent = '→ ngang'; tr.className='dh-trend flat'; }
+      else if(diff > 0){ tr.textContent = '↑ '+fmt(Math.abs(diff)); tr.className='dh-trend up'; }
+      else { tr.textContent = '↓ '+fmt(Math.abs(diff)); tr.className='dh-trend down'; }
+    } else {
+      tr.textContent=''; tr.className='dh-trend';
+    }
+    drawSpark('dsSpark', week1);
+
+    // Slide 4: donut phân loại
+    drawDonut('dsDonut', 'dsDonutStats', {ok:okCnt, warn:warnCnt, high:highCnt}, total);
+  }
+
+  function drawDonut(chartId, statsId, data, total){
+    const chart = $(chartId), stats = $(statsId);
+    if(!total){
+      chart.innerHTML = '<div class="dn-empty">Chưa có dữ liệu</div>';
+      stats.innerHTML = '';
+      return;
+    }
+    const segments = [
+      {key:'ok',   val:data.ok,   label:'Ổn định'},
+      {key:'warn', val:data.warn, label:'Hơi cao'},
+      {key:'high', val:data.high, label:'Cao'},
+    ];
+    let cum = 0;
+    const circles = segments.map(s=>{
+      if(!s.val) return '';
+      const pct = s.val/total*100;
+      const dash = `${pct.toFixed(3)} ${(100-pct).toFixed(3)}`;
+      const c = `<circle class="dn-seg ${s.key}" cx="21" cy="21" r="15.9155" fill="transparent" stroke-width="5" stroke-dasharray="${dash}" stroke-dashoffset="${(-cum).toFixed(3)}" pathLength="100"/>`;
+      cum += pct;
+      return c;
+    }).join('');
+    const okPct = Math.round(data.ok/total*100);
+    chart.innerHTML = `
+      <svg viewBox="0 0 42 42">
+        <circle class="dn-track" cx="21" cy="21" r="15.9155" fill="transparent" stroke-width="5"/>
+        <g transform="rotate(-90 21 21)">${circles}</g>
+      </svg>
+      <div class="dn-center">
+        <div class="dn-pct">${okPct}%</div>
+        <div class="dn-lbl">Ổn định</div>
+      </div>
+    `;
+    const row = (k, lbl, n) => `<div class="dn-row">
+      <div class="dn-key ${k}"><i></i>${lbl}</div>
+      <div class="dn-val">${n}<span class="dn-pct-sm">${total?Math.round(n/total*100):0}%</span></div>
+    </div>`;
+    stats.innerHTML = row('ok','Ổn định',data.ok) + row('warn','Hơi cao',data.warn) + row('high','Cao',data.high);
+  }
+
+  function drawSpark(id, data){
+    const el = $(id);
+    const vals = data.filter(v=>v!==null);
+    if(!vals.length){ el.innerHTML='<div class="sp-empty">Chưa có dữ liệu trong tuần</div>'; return; }
+    const min = Math.min(...vals) - 0.5;
+    const max = Math.max(...vals) + 0.5;
+    const w = 320, h = 70, pad = 6;
+    const n = data.length;
+    const xStep = (w - pad*2) / (n - 1);
+    const pts = data.map((v,i)=>{
+      if(v===null) return null;
+      const x = pad + i*xStep;
+      const y = pad + (1 - (v - min)/(max - min)) * (h - pad*2);
+      return {x, y};
+    });
+    let linePath = '';
+    let started = false;
+    for(const p of pts){
+      if(!p) continue;
+      linePath += (started ? 'L' : 'M') + p.x.toFixed(1) + ',' + p.y.toFixed(1) + ' ';
+      started = true;
+    }
+    const valid = pts.filter(Boolean);
+    let fillPath = '';
+    if(valid.length >= 2){
+      fillPath = 'M' + valid.map(p=>p.x.toFixed(1)+','+p.y.toFixed(1)).join(' L') +
+        ` L${valid[valid.length-1].x.toFixed(1)},${(h-pad).toFixed(1)} L${valid[0].x.toFixed(1)},${(h-pad).toFixed(1)} Z`;
+    }
+    const dots = valid.map((p,i,arr)=>{
+      const isLast = i === arr.length - 1;
+      return `<circle class="sp-dot${isLast?' last':''}" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${isLast?4:2.5}"/>`;
+    }).join('');
+    el.innerHTML = `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
+      ${fillPath ? `<path class="sp-fill" d="${fillPath}"/>` : ''}
+      <path class="sp-line" d="${linePath.trim()}"/>
+      ${dots}
+    </svg>`;
+  }
+
+  function initDashSlider(){
+    const slider = $('dashSlider');
+    if(!slider) return;
+    const slides = slider.querySelectorAll('.dash-slide');
+    const dotsEl = $('dashDots');
+    dotsEl.innerHTML = '';
+    slides.forEach((s, i) => {
+      const dot = document.createElement('button');
+      dot.className = 'dot' + (i===0 ? ' on' : '');
+      dot.type = 'button';
+      dot.setAttribute('aria-label', s.dataset.title || ('Trang '+(i+1)));
+      dot.addEventListener('click', () => {
+        slider.scrollTo({left: i * slider.clientWidth, behavior: 'smooth'});
+      });
+      dotsEl.appendChild(dot);
+    });
+    let ticking = false;
+    slider.addEventListener('scroll', () => {
+      if(ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const idx = Math.round(slider.scrollLeft / slider.clientWidth);
+        dotsEl.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('on', i===idx));
+        ticking = false;
+      });
+    }, {passive:true});
+  }
+
   // ===== Boot =====
-  (async ()=>{ records = await load(); render(); applySuggestion(); refreshGold(true); })();
+  (async ()=>{ records = await load(); render(); applySuggestion(); refreshGold(true); initDashSlider(); })();
 </script>
 </body>
 </html>
